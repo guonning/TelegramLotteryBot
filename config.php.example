@@ -13,4 +13,6 @@ $config['db_pass'] = 'AzukiC1oud1sTheBest';
 $config['db_name'] = $config['db_user'];
 $config['db_char'] = 'utf8';
 
+$config['base_url'] = 'https://example.com/bots/AzukiLotteryBot';  // 填写你部署本bot的web目录，结尾不带 "/" 
+
 $config['curl_timeout'] = 1;

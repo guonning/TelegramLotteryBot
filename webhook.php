@@ -176,7 +176,7 @@
 
             $buttons[2] = array(
                 'text' => '查看详情',
-                'url' => "https://api.wumai.cloud/LotteryBot/details/$number/$hash"
+                'url' => $config['base_url']."/details/$number/$hash"
             );
 
             $btn = json_encode(array('inline_keyboard'=>array($buttons)));
