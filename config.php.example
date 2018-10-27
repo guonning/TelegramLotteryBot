@@ -1,0 +1,16 @@
+<?php
+// Configs
+
+$config['key'] = 'Asdfghjkl12345';  // 用于Salt / 鉴定请求 ,瞎jb修改为大小写字母数字
+
+// @BotFather
+$config['bot_token'] = 'YOUR_BOT_TOKEN';
+
+// Your database config
+$config['db_host'] = '1.1.1.1';
+$config['db_user'] = 'LotteryBot';
+$config['db_pass'] = 'AzukiC1oud1sTheBest';
+$config['db_name'] = $config['db_user'];
+$config['db_char'] = 'utf8';
+
+$config['curl_timeout'] = 1;
