@@ -62,6 +62,7 @@ if(file_exists("./sessions/details/$hash.json"))
 							for($i = 0; $i < count($data); $i++)
 							{
 								$dt = $data[$i];
+								if($dt->username == '') $dt->username = '<font style="color:#B0B0B0">(未设置用户名)</font>';
 								if($dt->first_name == '') $dt->first_name = '<font style="color:#B0B0B0">(不支持的符号)</font>';
 								echo "
 									<tr>
