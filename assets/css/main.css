@@ -262,7 +262,7 @@ tbody tr:hover {
     content: "编号";
   }
   table tbody tr td:nth-child(2):before {
-    content: "Telegram User ID";
+    content: "Telegram ID";
   }
   table tbody tr td:nth-child(3):before {
     content: "First Name";
@@ -274,7 +274,7 @@ tbody tr:hover {
     content: "Join time";
   }
   table tbody tr td:nth-child(6):before {
-    content: "Telegram Link";
+    content: "Telegram";
   }
 
   .column1,
