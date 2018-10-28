@@ -24,17 +24,17 @@ if(file_exists("./sessions/details/$hash.json"))
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 <!--===============================================================================================-->	
-	<link rel="icon" type="image/png" href="/LotteryBot/assets/images/icons/favicon.ico"/>
+	<link rel="icon" type="image/png" href="https://azuki.cloud/favicon.ico"/>
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/LotteryBot/assets/vendor/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.loli.net/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/LotteryBot/assets/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.loli.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/LotteryBot/assets/vendor/animate/animate.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.loli.net/ajax/libs/animate.css/3.5.2/animate.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/LotteryBot/assets/vendor/select2/select2.min.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.loli.net/ajax/libs/select2/4.0.3/css/select2.min.css">
 <!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/LotteryBot/assets/vendor/perfect-scrollbar/perfect-scrollbar.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.4.0/css/perfect-scrollbar.css">
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="/LotteryBot/assets/css/util.css">
 	<link rel="stylesheet" type="text/css" href="/LotteryBot/assets/css/main.css">
@@ -87,12 +87,12 @@ if(file_exists("./sessions/details/$hash.json"))
 	
 
 <!--===============================================================================================-->	
-	<script src="/LotteryBot/assets/vendor/jquery/jquery-3.2.1.min.js"></script>
+	<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <!--===============================================================================================-->
-	<script src="/LotteryBot/assets/vendor/bootstrap/js/popper.js"></script>
-	<script src="/LotteryBot/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.loli.net/ajax/libs/popper.js/1.12.5/umd/popper.min.js"></script>
+	<script src="https://cdnjs.loli.net/ajax/libs/twitter-bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
 <!--===============================================================================================-->
-	<script src="/LotteryBot/assets/vendor/select2/select2.min.js"></script>
+	<script src="https://cdnjs.loli.net/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <!--===============================================================================================-->
 	<script src="/LotteryBot/assets/js/main.js"></script>
 
