@@ -1,4 +1,4 @@
-# TelegramLotteryBot
+# AzukiLotteryBot
 超级菜的 Telegram lottery bot developed for small-scale use.<br>
 ~~随缘项目，就算有bug，我懒一样不会修，嗯。~~
 
