@@ -63,6 +63,7 @@
 
         case '/my':  // 查看当前的抽奖
         require_once('./commands/my.php');
+        ReplyMessage($t,false,$buttons);
         exit();
         break;
 
@@ -179,6 +180,11 @@
                 'url' => $config['base_url']."/details/$number/$hash"
             );
 
+            $buttons[3] = array(
+                'text' => '返回',
+                'callback_data' => 'list:'.$number.':'.hash('MD5',$number.$from->id.$config['key'])
+            );
+
             $btn = json_encode(array('inline_keyboard'=>array($buttons)));
             EditMessage($t,$msg_id,$btn,$from->id);
             break;
@@ -244,6 +250,16 @@
             }
             EditMessage($t,$msg_id,false,$from->id);
             break;
+
+
+            //========================================
+            case 'list':
+            require_once('./commands/my.php');
+            EditMessage($t,$msg_id,$buttons,$from->id);
+            break;
+
+
+
         }  
 
 

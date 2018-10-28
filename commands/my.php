@@ -25,5 +25,3 @@ while($row = $rs->fetch_assoc())
     $i++;
 }
 $buttons = json_encode(array('inline_keyboard'=>array($buttons)));
-
-ReplyMessage($t,false,$buttons);
