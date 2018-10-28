@@ -441,7 +441,7 @@ function Lottery($number)
     $t .= "\r\n已经PM通知获奖者，请尽快领奖";
 
     // ad
-    $t .= "\r\n\r\nPowered By <a href=\"https://azuki.cloud\">Azuki Cloud</a>";
+    $t .= "\r\n\r\nPowered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
 
     // Update Lottery Status
     $rs = $c->query("UPDATE `lottery_list` SET `extracted` = '1' WHERE `number` = $number");
@@ -459,7 +459,6 @@ function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req
 {
     $msg = "$firstname, 恭喜你中奖！\r\n中奖详情如下:\r\n抽奖标题: <b>$title</b>\r\n抽奖详情:\r\n<b>$details</b>\r\n唯一抽奖ID: <code>$number</code>\r\n请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。";
     // AD
-    $msg .= "\r\n\r\nPowered By <a href=\"https://azuki.cloud\">Azuki Cloud</a>";
+    $msg .= "\r\n\r\nPowered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
     ReplyMessage($msg,false,false,$uid);
 }
-

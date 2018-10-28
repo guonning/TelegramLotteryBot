@@ -51,8 +51,8 @@ if(file_exists("./sessions/details/$hash.json"))
 							<tr class="table100-head">
 								<th class="column1">编号</th>
 								<th class="column2">Telegram ID</th>
-								<th class="column3">First Name</th>
-								<th class="column4">Last Name</th>
+								<th class="column3">用户名</th>
+								<th class="column4">First Name</th>
 								<th class="column5">参与时间</th>
 								<th class="column6">Telegram</th>
 							</tr>
@@ -63,17 +63,16 @@ if(file_exists("./sessions/details/$hash.json"))
 							{
 								$dt = $data[$i];
 								if($dt->first_name == '') $dt->first_name = '<font style="color:#B0B0B0">(不支持的符号)</font>';
-								if($dt->last_name == '') $dt->last_name = '<font style="color:#B0B0B0">(empty)</font>';
 								echo "
 									<tr>
 										<td class=\"column1\">$dt->id</td>
 										<td class=\"column2\">$dt->user_id</td>
-										<td class=\"column3\">$dt->first_name</td>
-										<td class=\"column4\">$dt->last_name</td>
+										<td class=\"column3\">$dt->username</td>
+										<td class=\"column4\">$dt->first_name</td>
 										<td class=\"column5\">$dt->join_time</td>
 										<td class=\"column6\"><button type=\"button\" class=\"btn btn-primary btn-sm\" onclick=\"window.location='tg://user?id=$dt->user_id'\">点我</button></td>
 									</tr>
-								";
+								";  // 还有 last name / language code 可自行魔改
 							}
 							?>
 						</tbody>
