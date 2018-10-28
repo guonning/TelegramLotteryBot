@@ -7,7 +7,7 @@
 2. Download ZIP or Clone this repository.
 3. Import LotteryBot.sql into your MySQL database
 4. Copy config.php.example to config.php and follow the prompts to fill in the relevant information.
-5. Set your webhook address at api.telegram.org to https://example.com/LotteryBot/webhook.php?key=YOUR_KEY_IN_CONFIG
+5. Set your webhook address at api.telegram.org like https://example.com/LotteryBot/webhook.php?key=YOUR_KEY_IN_CONFIG
 6. Add rewrite rules: (Take Nginx as an example, Modify as needed)
 ```
 rewrite /LotteryBot/details /LotteryBot/details.php last;
