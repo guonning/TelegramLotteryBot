@@ -1,14 +1,14 @@
 <?php
 $uri = explode('/',$_SERVER['REQUEST_URI']);
 
+$number = $uri[3];
+$hash = $uri[4];
+
 if(!isset($uri[3]) || !isset($uri[4]) || !file_exists("./sessions/details/$hash.json"))
 {
 	header('HTTP/1.1 403 Forbidden');
 	exit();
 }
-
-$number = $uri[3];
-$hash = $uri[4];
 
 if(file_exists("./sessions/details/$hash.json"))
 {
