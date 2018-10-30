@@ -10,7 +10,19 @@
 5. Set your webhook address at api.telegram.org like https://example.com/LotteryBot/webhook.php?key=YOUR_KEY_IN_CONFIG
 6. Add rewrite rules: (Take Nginx as an example, Modify as needed)
 ```
-rewrite /LotteryBot/details /LotteryBot/details.php last;
+rewrite /AzukiLotteryBot/details /AzukiLotteryBot/details.php last;
+```
+7. Add the following to your configuration: (Take Nginx as an example, Modify as needed)
+```
+location /AzukiLotteryBot/sessions
+{
+    return 403;
+}
+    
+location /AzukiLotteryBot/commands
+{
+    return 403;
+}
 ```
 
 ## Usage
