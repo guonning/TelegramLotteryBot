@@ -1,4 +1,5 @@
 <?php
+require './config.php';
 $uri = explode('/',$_SERVER['REQUEST_URI']);
 
 $number = $uri[3];
@@ -29,7 +30,7 @@ if(file_exists("./sessions/details/$hash.json"))
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.loli.net/ajax/libs/animate.css/3.5.2/animate.min.css">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.loli.net/ajax/libs/select2/4.0.3/css/select2.min.css">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.4.0/css/perfect-scrollbar.css">
-	<link rel="stylesheet" type="text/css" href="/LotteryBot/assets/css/main.css">
+	<link rel="stylesheet" type="text/css" href="<?php echo $config['base_url'] ?>/assets/css/main.css">
 </head>
 <body>
 	
@@ -82,7 +83,7 @@ if(file_exists("./sessions/details/$hash.json"))
 <!--===============================================================================================-->
 	<script src="https://cdnjs.loli.net/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <!--===============================================================================================-->
-	<script src="/LotteryBot/assets/js/main.js"></script>
+	<script src="<?php echo $config['base_url'] ?>/assets/js/main.js"></script>
 
 </body>
 </html>
