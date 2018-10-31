@@ -220,8 +220,10 @@ function PlainText($from,$text)
         $user->amount = (int)$text;
         $user->step = 4;
         file_put_contents("./sessions/$from->id.json",json_encode($user));
-        ReplyMessage("设置完成，详情如下：\r\n抽奖标题: <code>$user->title</code>\r\n抽奖详情：\r\n<code>$user->details</code>\r\n奖品份数: <code>$user->amount</code>\r\n\r\n确认以上信息？(y/n)\r\n发送 <code>n</code> 或 /cancel 取消抽奖。");
-        if($user->amount > 25) ReplyMessage('注意：您设定的奖品超过25个，为了防止文字内容超限，开奖时将不会显示所有用户名，通知照常。');
+        $t = "设置完成，详情如下：\r\n抽奖标题: <code>$user->title</code>\r\n抽奖详情：\r\n<code>$user->details</code>\r\n奖品份数: <code>$user->amount</code>\r\n\r\n";
+        if($user->amount > 25) $t .= "注意：您设定的奖品超过 25 个，为了防止文字内容超限，开奖时将不会显示所有用户名，通知照常。\r\n\r\n";
+        $t .= "确认以上信息？(y/n)\r\n发送 <code>n</code> 或 /cancel 取消抽奖。";
+        ReplyMessage($t);
         exit();
         break;
     
