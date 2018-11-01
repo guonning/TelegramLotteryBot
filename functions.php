@@ -411,7 +411,6 @@ function PlainText($from,$text)
         {
             case 'y':
             Lottery($j->number);
-            unlink("./sessions/confirm/$from->id.json");
             exit();
             break;
 
@@ -526,7 +525,7 @@ function Lottery($number)
             
             array_push($winners,$winner);
 
-            $sql .= " `id` = $winner->id OR";  // add to sql statement
+            $sql .= ' `id` = '.$winner['id'].' OR';  // add to sql statement
         }
 
     }
@@ -580,7 +579,7 @@ function Lottery($number)
     $t .= "\r\n已经PM通知获奖者，请尽快领奖";
 
     // ad
-    $t .= "\r\n\r\nPowered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
+    $t .= "\r\n\r\n<i>Powered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a></i>";
 
     // Update Lottery Status
     $rs = $c->query("UPDATE `lottery_list` SET `extracted` = '1' WHERE `number` = $number");
@@ -589,7 +588,7 @@ function Lottery($number)
         ReplyMessage("内部错误，更新投票状态失败，Bot Error 23: $c->error");
         exit();
     }
-
+    unlink("./sessions/confirm/$from->id.json");
     ReplyMessage($t);
 }
 
@@ -598,7 +597,7 @@ function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req
 {
     $msg = "$firstname, 恭喜你中奖！\r\n中奖详情如下:\r\n抽奖标题: <b>$title</b>\r\n抽奖详情:\r\n<b>$details</b>\r\n唯一抽奖ID: <code>$number</code>\r\n请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。";
     // AD
-    $msg .= "\r\n\r\nPowered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
+    $msg .= "\r\n\r\n<i>Powered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a></i>";
     ReplyMessage($msg,false,false,$uid);
 }
 
