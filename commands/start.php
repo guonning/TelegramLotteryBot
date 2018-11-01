@@ -103,7 +103,7 @@
                 exit();
             }
 
-            //ReplyMessage("Respone: ".$vision);
+            ReplyMessage($vision);
 
             $vision = json_decode($vision);
 
@@ -113,35 +113,36 @@
                 exit();
             }
 
+            //ReplyMessage(print_r($vision,true));
+
             $labels = $vision->labelAnnotations;
             $safety = $vision->safeSearchAnnotation;
 
             //------------- preferred label -------------
+            $perfer1 = array_search('anime',array_column($labels,'description')); // personal preference, 不服咬我略略略
+            $perfer2 = array_search('cartoon',array_column($labels,'description'));
+            $perfer3 = array_search('illustration',array_column($labels,'description'));
 
-            ReplyMessage("Start Label Checking");
-
-            $perfer[0] = array_search('anime',array_column($labels, 'description')); // personal preference, 不服咬我略略略
-            $perfer[1] = array_search('cartoon',array_column($labels, 'description'));
-            $perfer[2] = array_search('illustration',array_column($labels, 'description'));
+            //ReplyMessage(print_r($labels,true));
 
             // "anime" label
-            if($perfer[0] !== false && $labels[$perfer[0]]->score >= 0.72)
+            if($perfer1 !== false && $labels[$perfer1]->score >= 0.72)
             {
-                $prob = $prob + (0.28*$labels[$perfer[0]]->score);
+                $prob = $prob + (0.28*$labels[$perfer1]->score);
                 ReplyMessage("anime label, prob = $prob");
             }
 
             // "cartoon" label
-            if($perfer[1] !== false && $labels[$perfer[1]]->score >= 0.72)
+            if($perfer2 !== false && $labels[$perfer2]->score >= 0.72)
             {
-                $prob = $prob + (0.1*$labels[$perfer[1]]->score);
+                $prob = $prob + (0.1*$labels[$perfer2]->score);
                 ReplyMessage("cartoon label, prob = $prob");
             }
 
             // illust
-            if($perfer[2] !== false && $labels[$perfer[2]]->score >= 0.647)
+            if($perfer3 !== false && $labels[$perfer3]->score >= 0.647)
             {
-                $prob = $prob + (0.08*$labels[$perfer[2]]->score);
+                $prob = $prob + (0.08*$labels[$perfer3]->score);
                 ReplyMessage("illust label, prob = $prob");
             }
 

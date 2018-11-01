@@ -208,7 +208,7 @@ function PlainText($from,$text)
         }
         else
         {
-            ReplyMessage('您当前没有 session 进行中');
+            ReplyMessage('不支持的消息类型 或 当前没有 session 进行中');
             exit();
         }
     }
