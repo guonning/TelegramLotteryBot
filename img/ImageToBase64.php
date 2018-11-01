@@ -16,8 +16,8 @@ if($fp = fopen($filename,"rb", 0))
     $gambar = fread($fp,filesize($filename)); 
     fclose($fp); 
     $base64 = chunk_split(base64_encode($gambar)); 
-    
+
     // 输出
     echo $base64; 
-    echo 'data:image/jpg;base64,'.$base64;
+    //echo 'data:image/jpg;base64,'.$base64;
 } 
