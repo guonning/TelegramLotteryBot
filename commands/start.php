@@ -66,10 +66,10 @@ if(isset($cmd[1]))
     }
 
     // user id
-    if($from->id < 300000000) $prob = $prob + 0.18765345;
-    if($from->id < 400000000) $prob = $prob + 0.11215542;
-    if($from->id < 500000000) $prob = $prob + 0.06800762;
-    if($from->id < 600000000) $prob = $prob + 0.04897614;
+    if($from->id < 300000000) $prob = $prob + 0.185;
+    if($from->id < 400000000) $prob = $prob + 0.1;
+    if($from->id < 500000000) $prob = $prob + 0.438;
+    if($from->id < 600000000) $prob = $prob + 0.085;
 
     // get profile picture
     $pic_info = TelegramAPI('getUserProfilePhotos',array('user_id'=>$from->id));
@@ -82,9 +82,9 @@ if(isset($cmd[1]))
 
     $pic_count = $pic_info->result->total_count;
 
-    if($pic_count >= 7) $prob = $prob + 0.06534523;
-    if($pic_count >= 2) $prob = $prob + 0.03114514;
-    if($pic_count == 0) $prob = $prob - 0.28999319;
+    if($pic_count >= 7) $prob = $prob + 0.065;
+    if($pic_count >= 2) $prob = $prob + 0.032;
+    if($pic_count == 0) $prob = $prob - 0.43;
 
     // Cloud Vision API
     if($config['enable_vision_api'] !== true || $pic_count == 0) goto VisionEnd;
@@ -137,7 +137,7 @@ if(isset($cmd[1]))
     switch($safety->adult)
     {
         case 'VERY_LIKELY':
-        $prob = $prob - 0.05114514;
+        $prob = $prob - 0.05;
         break;
     }
 
@@ -145,15 +145,15 @@ if(isset($cmd[1]))
     switch($safety->spoof)
     {
         case 'POSSIBLE':
-        $prob = $prob - 0.11451419;
+        $prob = $prob - 0.11;
         break;
 
         case 'LIKELY':
-        $prob = $prob - 0.22498921;
+        $prob = $prob - 0.23;
         break;
 
         case 'VERY_LIKELY':
-        $prob = $prob - 0.45673456;
+        $prob = $prob - 0.46;
         break;
     }
 
@@ -161,15 +161,15 @@ if(isset($cmd[1]))
     switch($safety->medical)
     {
         case 'POSSIBLE':
-        $prob = $prob - 0.12599198;
+        $prob = $prob - 0.13;
         break;
 
         case 'LIKELY':
-        $prob = $prob - 0.24986921;
+        $prob = $prob - 0.24;
         break;
 
         case 'VERY_LIKELY':
-        $prob = $prob - 0.49963742;
+        $prob = $prob - 0.5;
         break;
     }
 
@@ -177,15 +177,15 @@ if(isset($cmd[1]))
     switch($safety->violence)
     {
         case 'POSSIBLE':
-        $prob = $prob - 0.12341919;
+        $prob = $prob - 0.115;
         break;
 
         case 'LIKELY':
-        $prob = $prob - 0.23333810;
+        $prob = $prob - 0.235;
         break;
 
         case 'VERY_LIKELY':
-        $prob = $prob - 0.46665678;
+        $prob = $prob - 0.46;
         break;
     }
 
