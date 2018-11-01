@@ -33,7 +33,7 @@ function TelegramAPI($method,array $d)
     curl_setopt($ch, CURLOPT_TIMEOUT, $config['curl_timeout']);
 	
 	$res = curl_exec($ch);
-	curl_close($ch);
+    curl_close($ch);
     return $res;
 }
 
@@ -153,9 +153,14 @@ function CloudVisionApi($tg_file_id)
     if($getfile === false || json_decode($getfile)->ok != true) return false;
     $tg_file_path = json_decode($getfile)->result->file_path;
 
-    $img_url = "https://api.telegram.org/file/bot$token/$tg_file_path";
-    $req = '{"requests":[{"image":{"source":{"imageUri":"'.$img_url.'"}},"features":[{"type":"LABEL_DETECTION"},{"type":"SAFE_SEARCH_DETECTION"}]}]}';
-    return PostJson($req,"https://vision.googleapis.com/v1/images:annotate?key=$api_key");
+    $img_url = "https://tgapi.azuki.cloud/file/bot$token/$tg_file_path";
+    //$req = '{"requests":[{"image":{"source":{"imageUri":"'.$img_url.'"}},"features":[{"type":"LABEL_DETECTION"},{"type":"SAFE_SEARCH_DETECTION"}]}]}';
+
+    $base64 = file_get_contents($config['base_url']."/img/ImageToBase64.php?url=$img_url");
+
+    $req = '{"requests":[{"image":{"content": "'.$base64.'"},"features":[{"type":"LABEL_DETECTION"},{"type":"SAFE_SEARCH_DETECTION"}]}]}';
+    $return = PostJson($req,"https://vision.googleapis.com/v1/images:annotate?key=$api_key");
+    return $return;
 }
 
 function PostJson($json,$url)
@@ -255,7 +260,7 @@ function PlainText($from,$text)
         $t = "已设置奖品数: $user->amount 份".PHP_EOL .
         "是否启用智能中奖概率控制(Alpha)？(y/n)".PHP_EOL .
         "<a href=\"https://open.azuki.cloud/AzukiLotteryBot/docs/smart-probability-control.html\">了解更多</a>";
-        
+
         if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
         {
             ReplyMessage("内部错误 Bot Error 103: 无法写入session");
