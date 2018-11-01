@@ -10,7 +10,8 @@ else
         'step' => 1,  // step
         'title' => '',  // lottery title
         'details' => '',  // lottery details
-        'amount' => 0   //  amount of winner
+        'amount' => 0,   //  amount of winner
+        'smart' => false   //  smart probability control 
     )));
     ReplyMessage('开始创建投票，请输入抽奖标题，或发送 /cancel 取消抽奖。');
     exit();

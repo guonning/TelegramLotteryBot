@@ -1,9 +1,11 @@
 <?php
     if(isset($cmd[1]))
     {
+        //============================= initial ================================
         // find lottery and join
         $c = GetDbConn();
         $token = $cmd[1];
+        $prob = 1.00000000;
 
         //======================================================================
         $rs = $c->query("SELECT * FROM `lottery_list` WHERE `token` = '$token'");
@@ -35,6 +37,7 @@
             $title = $row['title'];
             //$details = $row['details'];
             //$prize = $row['prize'];
+            $smart = $row['smart'];
         }
 
 
@@ -53,9 +56,132 @@
         }
 
 
+        //==================== Smart Probability Control =======================
+        if($smart != true) goto SmartOff;
+
+        // username
+        if($from->username == '') $prob = $prob - 0.065;  // 如果未设置用户名
+
+        // user id
+        if($from->id < 300000000) $prob = $prob + 0.18765345;
+        if($from->id < 400000000) $prob = $prob + 0.11215542;
+        if($from->id < 500000000) $prob = $prob + 0.06800762;
+        if($from->id < 600000000) $prob = $prob + 0.026;
+
+        // get profile picture
+        $pic_info = json_decode(TelegramAPI('getUserProfilePhotos',json_encode(array('user_id'=>$from->id))));
+        $pic_count = $pic_info->result->total_count;
+
+        if($pic_count >= 7) $prob = $prob + 0.056;
+        if($pic_count >= 2) $prob = $prob + 0.021;
+
+        if($pic_count == 0) $prob = $prob - 0.286;
+
+        // Cloud Vision API
+        if($config['enable_vision_api'] !== true || $pic_count == 0) goto VisionEnd;
+        $photos = $pic_info->result->photos;
+        $file_id = $photos[0][2]->file_id;
+
+        $vision = CloudVisionApi($file_id);
+        if($vision === false)
+        {
+            ReplyMessage("内部错误，Bot Error 121: Vision API Request Failed");
+            exit();
+        }
+
+        $vision = json_decode($vision);
+        $labels = $vision->labelAnnotations;
+        $safety = $vision->safeSearchAnnotation;
+
+        //------------- preferred label -------------
+        $perfer[0] = array_search('anime',array_column($labels, 'description')); // personal preference, 不服咬我略略略
+        $perfer[1] = array_search('cartoon',array_column($labels, 'description'));
+        $perfer[2] = array_search('illustration',array_column($labels, 'description'));
+
+        // "anime" label
+        if($perfer[0] !== false && $labels[$perfer[0]]->score >= 0.782)
+        {
+            $prob = $prob + (0.28*$labels[$perfer[0]]->score);
+        }
+
+        // "cartoon" label
+        if($perfer[1] !== false && $labels[$perfer[1]]->score >= 0.8)
+        {
+            $prob = $prob + (0.1*$labels[$perfer[1]]->score);
+        }
+
+        // illust
+        if($perfer[2] !== false && $labels[$perfer[2]]->score >= 0.656)
+        {
+            $prob = $prob + (0.08*$labels[$perfer[2]]->score);
+        }
+
+
+        //--------------- safe search ---------------
+        // 色图是第一生产力！
+        switch($safety->adult)
+        {
+            case 'VERY_LIKELY':
+            $prob = $prob - 0.05114514;
+            break;
+        }
+
+        // 欺骗
+        switch($safety->spoof)
+        {
+            case 'POSSIBLE':
+            $prob = $prob - 0.11451419;
+            break;
+
+            case 'LIKELY':
+            $prob = $prob - 0.22498921;
+            break;
+
+            case 'VERY_LIKELY':
+            $prob = $prob - 0.45673456;
+            break;
+        }
+
+        // 药物
+        switch($safety->medical)
+        {
+            case 'POSSIBLE':
+            $prob = $prob - 0.12599198;
+            break;
+
+            case 'LIKELY':
+            $prob = $prob - 0.24986921;
+            break;
+
+            case 'VERY_LIKELY':
+            $prob = $prob - 0.49963742;
+            break;
+        }
+
+        // 暴力
+        switch($safety->violence)
+        {
+            case 'POSSIBLE':
+            $prob = $prob - 0.12341919;
+            break;
+
+            case 'LIKELY':
+            $prob = $prob - 0.23333810;
+            break;
+
+            case 'VERY_LIKELY':
+            $prob = $prob - 0.46665678;
+            break;
+        }
+
+        //switch($safety->racy)  // 不存在的
+
+        VisionEnd:
+        $prob = round($prob,8);
+        SmartOff:
         //======================================================================
         $timestamp = time();
-        $rs = $c->query("INSERT INTO `$number` (`user_id`, `username`, `first_name`, `last_name`, `join_time`, `lang_code`) VALUES ('$from->id', '$from->username', '$from->first_name', '$from->last_name', '$timestamp', '$from->language_code')");
+        $rs = $c->query("INSERT INTO `$number` (`user_id`, `username`, `first_name`, `last_name`, `probability`, `join_time`, `lang_code`) VALUES ('$from->id', '$from->username', '$from->first_name', '$from->last_name', '$prob', '$timestamp', '$from->language_code')");
 
         if($rs === false)
         {

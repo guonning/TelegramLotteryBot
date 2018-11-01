@@ -1,7 +1,7 @@
 <?php
 // Lottery Bot functions
 
-//============================ Telegram APIs ==================================
+//=============================== Actions =====================================
 // any method
 function TelegramAPI($method,array $d)
 {
@@ -34,21 +34,7 @@ function TelegramAPI($method,array $d)
 	
 	$res = curl_exec($ch);
 	curl_close($ch);
-    $return = json_decode($res);
-
-    if($return->ok === true) return true;
-    if(isset($error_report) && $error_report === true) return false;
-
-    $d = json_encode(array(
-		'chat_id' => $message->chat->id,
-        'text' => "<b>API Error when SendMessage</b>\r\n".print_r($return,true),
-        'disable_web_page_preview' => true,
-        'parse_mode' => 'html'
-    ));
-    file_put_contents('./ErrorReport-SendMessage-'.time().'.txt',"API Error\r\n".print_r($return,true));
-    $error_report = true;
-    goto CurlSend;
-    return false;
+    return $res;
 }
 
 // sendMessage
@@ -156,6 +142,43 @@ function EditMessage($msg,$msgid,$reply_markup = false,$chat_id = false)
 }
 
 
+function CloudVisionApi($tg_file_id)
+{
+    global $config;
+    $token = $config['bot_token'];
+    $api_key = $config['vision_api_key'];
+
+    // get img file path
+    $getfile = file_get_contents("https://api.telegram.org/bot$token/getfile?file_id=$tg_file_id");
+    if($getfile === false || json_decode($getfile)->ok != true) return false;
+    $tg_file_path = json_decode($getfile)->result->file_path;
+
+    $img_url = "https://api.telegram.org/file/bot$token/$tg_file_path";
+    $req = '{"requests":[{"image":{"source":{"imageUri":"'.$img_url.'"}},"features":[{"type":"LABEL_DETECTION"},{"type":"SAFE_SEARCH_DETECTION"}]}]}';
+    return PostJson($req,"https://vision.googleapis.com/v1/images:annotate?key=$api_key");
+}
+
+function PostJson($json,$url)
+{
+    global $config;
+    $ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		'Content-Type: application/json',
+		'Content-Length: '.strlen($json)
+	));
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $config['curl_timeout']);
+	
+	$res = curl_exec($ch);
+    curl_close($ch);
+    
+    return $res;
+}
+
 //============================= Database ==================================
 // Get MySQL Connection
 function GetDbConn()
@@ -190,7 +213,8 @@ function PlainText($from,$text)
     Step 1: give me the title
     Step 2: give me some details
     Step 3: give me amount of winner
-    Step 4: confirm
+    Step 4: smart probability control
+    Step 5: confirm
     */
     $user = json_decode(file_get_contents("./sessions/$from->id.json"));
     switch($user->step)
@@ -198,7 +222,11 @@ function PlainText($from,$text)
         case 1:  // Step 1: give me the title
         $user->title = $text;
         $user->step = 2;
-        file_put_contents("./sessions/$from->id.json",json_encode($user));
+        if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
+        {
+            ReplyMessage("内部错误 Bot Error 101: 无法写入session");
+            exit();
+        }
         ReplyMessage("标题设置成功: <code>$user->title</code>\r\n接下来请发送给我抽奖详情，或发送 /cancel 取消抽奖。");
         exit();
         break;
@@ -206,7 +234,11 @@ function PlainText($from,$text)
         case 2:  // Step 2: give me some details
         $user->details = $text;
         $user->step = 3;
-        file_put_contents("./sessions/$from->id.json",json_encode($user));
+        if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
+        {
+            ReplyMessage("内部错误 Bot Error 102: 无法写入session");
+            exit();
+        }
         ReplyMessage("抽奖详情设置成功: <code>$user->details</code>\r\n接下来请发送给我中奖人数，或发送 /cancel 取消抽奖。");
         exit();
         break;
@@ -219,15 +251,61 @@ function PlainText($from,$text)
         }
         $user->amount = (int)$text;
         $user->step = 4;
-        file_put_contents("./sessions/$from->id.json",json_encode($user));
-        $t = "设置完成，详情如下：\r\n抽奖标题: <code>$user->title</code>\r\n抽奖详情：\r\n<code>$user->details</code>\r\n奖品份数: <code>$user->amount</code>\r\n\r\n";
-        if($user->amount > 25) $t .= "注意：您设定的奖品超过 25 个，为了防止文字内容超限，开奖时将不会显示所有用户名，通知照常。\r\n\r\n";
-        $t .= "确认以上信息？(y/n)\r\n发送 <code>n</code> 或 /cancel 取消抽奖。";
+
+        $t = "已设置奖品数: $user->amount 份".PHP_EOL .
+        "是否启用智能中奖概率控制(Beta)？(y/n)".PHP_EOL .
+        "<a href=\"https://open.azuki.cloud/AzukiLotteryBot/docs/smart-probability-control.html\">了解更多</a>";
+        
         ReplyMessage($t);
         exit();
         break;
     
-        case 4:  // Step 4: confirm
+        case 4:  // Step 4: smart probability control
+        switch($text)
+        {
+            case 'y':
+            $user->smart = true;
+            break;
+
+            case 'n':
+            $user->smart = false;
+            break;
+
+            default:
+            ReplyMessage('无法识别您的输入，请回复 y/n 或取消 /cancel');
+            exit();
+            break;
+        }
+        $user->step = 5;
+        if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
+        {
+            ReplyMessage("内部错误 Bot Error 103: 无法写入session");
+            exit();
+        }
+
+        if($user->smart == true)
+        {
+            $smart = '开启';
+        }
+        else
+        {
+            $smart = '关闭';
+        }
+
+        $t = '设置完成，详情如下：' . PHP_EOL .
+        "抽奖标题: <code>$user->title</code>" . PHP_EOL .
+        "抽奖详情：\r\n<code>$user->details</code>" . PHP_EOL .
+        "奖品份数: <code>$user->amount</code>".PHP_EOL .
+        "智能概率: $smart\r\n\r\n";
+
+        if($user->amount > 25) $t .= "注意：您设定的奖品超过 25 个，为了防止文字内容超限，开奖时将不会显示所有用户名，通知照常。\r\n\r\n";
+        $t .= "确认以上信息？(y/n)\r\n发送 <code>n</code> 或 /cancel 取消抽奖。";
+
+        ReplyMessage($t);
+        exit();
+        break;
+
+        case 5:  // Step 5: confirm
         $text = strtolower($text);
         switch($text)
         {
@@ -241,7 +319,7 @@ function PlainText($from,$text)
     
             $token = hash('SHA256',"$number$timestamp-$user->title$key$from->id");
     
-            $nrsp[1] = $c->query("INSERT INTO `lottery_list` (`id`, `number`, `token`, `title`, `details`, `prize`, `req_uid`, `req_username`, `req_firstname`, `timestamp`) VALUES ('$id', '$number', '$token', '$user->title', '$user->details', '$user->amount', '$from->id', '$from->username', '$from->first_name','$timestamp')");
+            $nrsp[1] = $c->query("INSERT INTO `lottery_list` (`id`, `number`, `token`, `title`, `details`, `prize`, `smart`, `req_uid`, `req_username`, `req_firstname`, `timestamp`) VALUES ('$id', '$number', '$token', '$user->title', '$user->details', '$user->amount', '$user->smart', '$from->id', '$from->username', '$from->first_name','$timestamp')");
             if($nrsp[1] == false)
             {
                 ReplyMessage("内部错误，Bot Error 01: $c->error");
@@ -253,7 +331,15 @@ function PlainText($from,$text)
                 ReplyMessage("内部错误，Bot Error 02: $c->error");
                 exit();
             }
-            ReplyMessage("欢迎加入 $from->first_name 创建的抽奖：\r\n唯一抽奖ID: $number\r\n抽奖标题: $user->title\r\n抽奖详情: $user->details\r\n抽奖份数: $user->amount\r\n\r\n<a href=\"https://t.me/tgLotteryBot?start=$token\">点击加入</a>");
+
+            $t = "欢迎加入 $from->first_name 创建的抽奖". PHP_EOL .
+            "唯一抽奖ID: $number".PHP_EOL.
+            "抽奖标题: $user->title".PHP_EOL.
+            "抽奖详情: $user->details".PHP_EOL.
+            "抽奖份数: $user->amount".PHP_EOL.PHP_EOL.
+            "<a href=\"https://t.me/tgLotteryBot?start=$token\">点击加入</a>";
+
+            ReplyMessage($t);
             unlink("./sessions/$from->id.json");
             exit();
             break;
@@ -261,7 +347,7 @@ function PlainText($from,$text)
     
             case 'n':  // remove session
             unlink("./sessions/$from->id.json");
-            ReplyMessage('Canceled.');
+            ReplyMessage('已取消');
             break;
     
     
@@ -339,9 +425,7 @@ function PlainText($from,$text)
 
 function Lottery($number)
 {
-    ReplyMessage("正在尝试开奖并通知中奖者，请稍候...");
-
-    //Debug('Lottery-1');
+    ReplyMessage("正在尝试开奖并通知中奖者，这可能需要一些时间，请稍候...");
 
     $c = GetDbConn();
     $rs = $c->query("SELECT max(id) FROM `$number`");
@@ -352,8 +436,6 @@ function Lottery($number)
     }
     $joined = $rs->fetch_assoc()['max(id)'];
 
-    //Debug('Lottery-2');
-
     // get lottery's info
     $rs = $c->query("SELECT * FROM `lottery_list` WHERE `number` = '$number'");
     if($rs === false)
@@ -362,13 +444,12 @@ function Lottery($number)
         exit();
     }
 
-    //Debug('Lottery-3');
-
     while($row = $rs->fetch_assoc())
     {
         $title = $row['title'];
         $details = $row['details'];
         $prize = $row['prize'];
+        $smart = $row['smart'];
         $req_uid = $row['req_uid'];
         $req_username = $row['req_username'];
         $req_firstname = $row['req_firstname'];
@@ -382,24 +463,65 @@ function Lottery($number)
         exit();
     }
 
-    //Debug('Lottery-5');
+    $sql = "SELECT * FROM `$number` WHERE";  // sql perfix
 
-    // random join id
-    $sql = "SELECT * FROM `$number` WHERE";
-    for($i = 1; $i <= $prize; $i++)
+    if($smart == false)
     {
-        RandomAgain:
-        //Debug('Lottery-6-random');
-        $rand = random_int(1,$joined);
-        if(in_array($rand,$winner) == true)
+        // random join id
+        for($i = 1; $i <= $prize; $i++)
         {
-            goto RandomAgain;
-        }
-        $winner[$i] = $rand;
-        $sql .= " `id` = $rand OR";
-    }
-    $sql .= "DER BY `user_id` ASC";  // lol
+            RandomAgain:
+            $rand = random_int(1,$joined);
+            if(in_array($rand,$winner) == true)
+            {
+                goto RandomAgain;
+            }
+            $winner[$i] = $rand;
 
+            $sql .= " `id` = $rand OR";  // add to sql statement
+        }
+    }
+    elseif($smart == true)
+    {
+        // 智能概率控制
+        $rs = $c->query("SELECT * FROM `$number`");
+        if($rs === false)
+        {
+            ReplyMessage("内部错误，Bot Error 131: $c->error");
+            exit();
+        }
+
+        $users = array();
+        $i = 0;
+        while($row = $rs->fetch_assoc())
+        {
+            $users[$i]['id'] = $row['id'];
+            //$users[$i]['user_id'] = $row['user_id'];
+            //$users[$i]['username'] = $row['username'];
+            //$users[$i]['first_name'] = $row['first_name'];
+            //$users[$i]['last_name'] = $row['last_name'];
+            $users[$i]['prob'] = $row['probability'];
+            //$users[$i]['join_time'] = $row['join_time'];
+            //$users[$i]['lang_code'] = $row['lang_code'];
+        }
+
+        $winners = array();
+        for($i = 1; $i <= $prize; $i++)
+        {
+            SmartRandomAgain:
+            $winner = LotteryWithWeight($users);
+
+            // 如果已经中奖一次则重抽
+            if(array_search($winner->id, array_column($winners, 'id')) !== false) goto SmartRandomAgain;
+            
+            array_push($winners,$winner);
+
+            $sql .= " `id` = $winner->id OR";  // add to sql statement
+        }
+
+    }
+
+    $sql .= "DER BY `user_id` ASC";  // sql suffix, lol
     $rs = $c->query($sql);
     if($rs === false)
     {
@@ -407,9 +529,14 @@ function Lottery($number)
         exit();
     }
 
-    //Debug('Lottery-7');
-
-    $t = "开奖成功！\r\n抽奖名称: <b>$title</b>\r\n创建者: <a href=\"tg://user?id=$req_uid\">$req_firstname</a>\r\n抽奖详情:\r\n<b>$details</b>\r\n奖品份数: <b>$prize 份</b>\r\n唯一抽奖ID: <b>$number</b>\r\n恭喜以下参与者中奖:\r\n";
+    $t = "开奖成功！\r\n" .
+    "抽奖名称: <b>$title</b>\r\n" .
+    "创建者: <a href=\"tg://user?id=$req_uid\">$req_firstname</a>\r\n" .
+    "抽奖详情:\r\n<b>$details</b>\r\n" .
+    "奖品份数: <b>$prize 份</b>\r\n" .
+    "唯一抽奖ID: <b>$number</b>\r\n" .
+    "恭喜以下参与者中奖:\r\n";
+    
     while($row = $rs->fetch_assoc())
     {
         $uid = $row['user_id'];
@@ -463,4 +590,37 @@ function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req
     // AD
     $msg .= "\r\n\r\nPowered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
     ReplyMessage($msg,false,false,$uid);
+}
+
+function LotteryWithWeight($arr)
+{
+    // Learn from https://www.jianshu.com/p/70c33bec2077
+	$probSum = 0;
+	foreach($arr as $value)
+	{
+		$probSum += $value['prob'];
+	}
+
+	if ($probSum <= 0)
+	{
+		return;
+	}
+
+	//初始化对象池， 相等于抽奖箱
+	$pool = array();
+
+	foreach ($arr as $v)
+	{
+		for ($i = 0; $i <= $v['prob']; $i++)
+		{
+			$pool[] = $v;
+		}
+	}
+
+	//打乱数组
+	shuffle($pool);
+
+	//抽奖
+	$randNum = rand(1, $probSum);
+	return $pool[$randNum - 1];
 }
