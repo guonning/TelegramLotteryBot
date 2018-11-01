@@ -1,18 +1,20 @@
 <?php
 // Configs
 
-$config['key'] = 'Asdfghjkl12345';  // 用于Salt / 鉴定请求 ,瞎jb修改为大小写字母数字
+$config['key'] = 'XXXXXXXXXXXXX';  // 用于鉴定请求 / Salt ,瞎jb修改为大小写字母数字
 
-// @BotFather
-$config['bot_token'] = 'YOUR_BOT_TOKEN';
+$config['bot_token'] = 'your_bot_token';
 
-// Your database config
-$config['db_host'] = '1.1.1.1';
+// Database info
+$config['db_host'] = 'localhost';
 $config['db_user'] = 'LotteryBot';
-$config['db_pass'] = 'AzukiC1oud1sTheBest';
-$config['db_name'] = $config['db_user'];
+$config['db_pass'] = 'password';
+$config['db_name'] = 'LotteryBot';
 $config['db_char'] = 'utf8';
 
-$config['base_url'] = 'https://example.com/bots/AzukiLotteryBot';  // 填写你部署本bot的web目录，结尾不带 "/" 
+$config['base_url'] = 'https://example.com/AzukiLotteryBot';
 
 $config['curl_timeout'] = 1;
+
+$config['enable_vision_api'] = true;  // 是否启用 Google Cloud Vision API，https://cloud.google.com/vision/
+$config['vision_api_key'] = 'xxxxxxxx';
