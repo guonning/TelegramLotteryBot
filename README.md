@@ -1,5 +1,6 @@
 # AzukiLotteryBot
-超级菜的 Telegram lottery bot developed for small-scale use.<br>
+一个 Telegram 抽奖 Bot<br>
+支持多份奖品、通知中奖人、查看参与情况、智能中奖概率<br>
 ~~随缘项目，就算有bug，我懒一样不会修，嗯。~~
 
 ## Deploy
