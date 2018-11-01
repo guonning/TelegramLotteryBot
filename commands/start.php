@@ -192,6 +192,7 @@ if(isset($cmd[1]))
     //switch($safety->racy)  // 不存在的
 
     VisionEnd:
+    $prob = $prob + (random_int(0,100000)/100000000);
     $prob = round($prob,8);
     SmartOff:
     //======================================================================
