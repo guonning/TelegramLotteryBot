@@ -103,9 +103,16 @@
                 exit();
             }
 
-            ReplyMessage("Respone: ".$vision);
+            //ReplyMessage("Respone: ".$vision);
 
             $vision = json_decode($vision);
+
+            if(isset($vision->error))
+            {
+                ReplyMessage("内部错误，Bot Error 135: Vision API Error\r\n".$vision->error->message);
+                exit();
+            }
+
             $labels = $vision->labelAnnotations;
             $safety = $vision->safeSearchAnnotation;
 
@@ -118,21 +125,21 @@
             $perfer[2] = array_search('illustration',array_column($labels, 'description'));
 
             // "anime" label
-            if($perfer[0] !== false && $labels[$perfer[0]]->score >= 0.782)
+            if($perfer[0] !== false && $labels[$perfer[0]]->score >= 0.72)
             {
                 $prob = $prob + (0.28*$labels[$perfer[0]]->score);
                 ReplyMessage("anime label, prob = $prob");
             }
 
             // "cartoon" label
-            if($perfer[1] !== false && $labels[$perfer[1]]->score >= 0.8)
+            if($perfer[1] !== false && $labels[$perfer[1]]->score >= 0.72)
             {
                 $prob = $prob + (0.1*$labels[$perfer[1]]->score);
                 ReplyMessage("cartoon label, prob = $prob");
             }
 
             // illust
-            if($perfer[2] !== false && $labels[$perfer[2]]->score >= 0.656)
+            if($perfer[2] !== false && $labels[$perfer[2]]->score >= 0.647)
             {
                 $prob = $prob + (0.08*$labels[$perfer[2]]->score);
                 ReplyMessage("illust label, prob = $prob");
@@ -140,9 +147,6 @@
 
 
             //--------------- safe search ---------------
-
-            ReplyMessage("Start Safe Search Checking");
-
             // 色图是第一生产力！
             switch($safety->adult)
             {
@@ -203,6 +207,7 @@
 
             VisionEnd:
             $prob = round($prob,8);
+            ReplyMessage("Prob: $prob");
             SmartOff:
             //======================================================================
             $timestamp = time();

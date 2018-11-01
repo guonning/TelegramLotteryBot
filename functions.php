@@ -158,8 +158,6 @@ function CloudVisionApi($tg_file_id)
 
     $base64 = file_get_contents($config['base_url']."/img/ImageToBase64.php?url=$img_url");
 
-    //file_put_contents('base64.txt',$base64);
-
     $req = '{"requests":[{"image":{"content": "'.$base64.'"},"features":[{"type":"LABEL_DETECTION"},{"type":"SAFE_SEARCH_DETECTION"}]}]}';
     $return = PostJson($req,"https://vision.googleapis.com/v1/images:annotate?key=$api_key");
     return $return;
