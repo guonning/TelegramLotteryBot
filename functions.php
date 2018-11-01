@@ -253,9 +253,14 @@ function PlainText($from,$text)
         $user->step = 4;
 
         $t = "已设置奖品数: $user->amount 份".PHP_EOL .
-        "是否启用智能中奖概率控制(Beta)？(y/n)".PHP_EOL .
+        "是否启用智能中奖概率控制(Alpha)？(y/n)".PHP_EOL .
         "<a href=\"https://open.azuki.cloud/AzukiLotteryBot/docs/smart-probability-control.html\">了解更多</a>";
         
+        if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
+        {
+            ReplyMessage("内部错误 Bot Error 103: 无法写入session");
+            exit();
+        }
         ReplyMessage($t);
         exit();
         break;
@@ -279,7 +284,7 @@ function PlainText($from,$text)
         $user->step = 5;
         if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
         {
-            ReplyMessage("内部错误 Bot Error 103: 无法写入session");
+            ReplyMessage("内部错误 Bot Error 104: 无法写入session");
             exit();
         }
 
