@@ -389,13 +389,7 @@ function PlainText($from,$text)
                 exit();
             }
             unlink("./sessions/confirm/$from->id.json");
-            $buttons[3] = array(
-                'text' => '返回',
-                'callback_data' => 'list:'.$number.':'.hash('MD5',$number.$from->id.$config['key'])
-            );
-            $btn = json_encode(array('inline_keyboard'=>array($buttons)));
-            EditMessage($t,$msg_id,$btn,$from->id);
-            //ReplyMessage('投票删除成功');
+            ReplyMessage('投票删除成功');
             break;
 
             case 'n':
