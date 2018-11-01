@@ -8,7 +8,11 @@ $file_type = explode('.',$url)[$i];
 
 $filename = md5(microtime(true)).".$file_type";
 
-file_put_contents($filename,$file);
+$put = file_put_contents($filename,$file);
+if($put === false)
+{
+    exit('Failed');
+}
 
 // http://www.runoob.com/w3cnote/php-image2base64.html
 if($fp = fopen($filename,"rb", 0)) 
