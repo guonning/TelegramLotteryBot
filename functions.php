@@ -411,6 +411,7 @@ function PlainText($from,$text)
         {
             case 'y':
             Lottery($j->number);
+            unlink("./sessions/confirm/$from->id.json");
             exit();
             break;
 
@@ -588,7 +589,6 @@ function Lottery($number)
         ReplyMessage("内部错误，更新投票状态失败，Bot Error 23: $c->error");
         exit();
     }
-    unlink("./sessions/confirm/$from->id.json");
     ReplyMessage($t);
 }
 
