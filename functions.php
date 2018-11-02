@@ -522,7 +522,7 @@ function Lottery($number)
             $winner = LotteryWithWeight($users);
 
             // 如果已经中奖一次则重抽
-            if(array_search($winner->id, array_column($winners, 'id')) !== false) goto SmartRandomAgain;
+            if(array_search($winner['id'], array_column($winners, 'id')) !== false) goto SmartRandomAgain;
             
             array_push($winners,$winner);
 
