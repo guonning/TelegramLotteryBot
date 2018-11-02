@@ -66,10 +66,10 @@ if(isset($cmd[1]))
     }
 
     // user id
-    if($from->id < 300000000) $prob = $prob + 0.185;
-    if($from->id < 400000000) $prob = $prob + 0.1;
-    if($from->id < 500000000) $prob = $prob + 0.438;
-    if($from->id < 600000000) $prob = $prob + 0.085;
+    if($from->id < 300000000) $prob = $prob + 0.215;
+    if($from->id < 400000000) $prob = $prob + 0.132;
+    if($from->id < 500000000) $prob = $prob + 0.096;
+    if($from->id < 600000000) $prob = $prob + 0.072;
 
     // get profile picture
     $pic_info = TelegramAPI('getUserProfilePhotos',array('user_id'=>$from->id));
