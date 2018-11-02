@@ -62,7 +62,7 @@ if(isset($cmd[1]))
     // username
     if($from->username == '')
     {
-        $prob = $prob - 0.065;  // 如果未设置用户名
+        $prob = $prob - 0.265;  // 如果未设置用户名
     }
 
     // user id
@@ -84,7 +84,7 @@ if(isset($cmd[1]))
 
     if($pic_count >= 7) $prob = $prob + 0.065;
     if($pic_count >= 2) $prob = $prob + 0.032;
-    if($pic_count == 0) $prob = $prob - 0.43;
+    if($pic_count == 0) $prob = $prob - 0.435;
 
     // Cloud Vision API
     if($config['enable_vision_api'] !== true || $pic_count == 0) goto VisionEnd;
@@ -192,8 +192,7 @@ if(isset($cmd[1]))
     //switch($safety->racy)  // 不存在的
 
     VisionEnd:
-    $prob = $prob + (random_int(0,100000)/100000000);
-    $prob = round($prob,8);
+    $prob = round($prob,4);
     SmartOff:
     //======================================================================
     $timestamp = time();

@@ -510,7 +510,7 @@ function Lottery($number)
             //$users[$i]['username'] = $row['username'];
             //$users[$i]['first_name'] = $row['first_name'];
             //$users[$i]['last_name'] = $row['last_name'];
-            $users[$i]['prob'] = $row['probability'];
+            $users[$i]['prob'] = $row['probability'] * 10000;
             //$users[$i]['join_time'] = $row['join_time'];
             //$users[$i]['lang_code'] = $row['lang_code'];
             $i++;

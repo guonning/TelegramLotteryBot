@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: 2018-11-01 21:41:36
+-- Generation Time: 2018-11-02 18:33:52
 -- 服务器版本： 5.5.61-log
 -- PHP Version: 7.2.11
 
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `lottery_tpl` (
   `username` text NOT NULL,
   `first_name` text NOT NULL,
   `last_name` text NOT NULL,
-  `probability` decimal(10,8) NOT NULL DEFAULT '1.00000000' COMMENT '中奖率',
+  `probability` decimal(10,4) NOT NULL DEFAULT '1.0000' COMMENT '中奖率',
   `join_time` int(11) NOT NULL COMMENT '参与时间戳',
   `lang_code` text NOT NULL COMMENT 'language_code',
   `win` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否中奖'
