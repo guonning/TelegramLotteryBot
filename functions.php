@@ -513,25 +513,19 @@ function Lottery($number)
             $users[$i]['prob'] = $row['probability'];
             //$users[$i]['join_time'] = $row['join_time'];
             //$users[$i]['lang_code'] = $row['lang_code'];
+            $i++;
         }
 
-        $winners = array();
-        for($i = 1; $i <= $prize; $i++)
+        $winners = LotteryWithWeight($users,$prize);
+        foreach($winners as $winner)
         {
-            SmartRandomAgain:
-            $winner = LotteryWithWeight($users);
-
-            // 如果已经中奖一次则重抽
-            if(array_search($winner['id'], array_column($winners, 'id')) !== false) goto SmartRandomAgain;
-            
-            array_push($winners,$winner);
-
             $sql .= ' `id` = '.$winner['id'].' OR';  // add to sql statement
         }
 
     }
 
     $sql .= "DER BY `user_id` ASC";  // sql suffix, lol
+
     $rs = $c->query($sql);
     if($rs === false)
     {
@@ -601,7 +595,7 @@ function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req
     ReplyMessage($msg,false,false,$uid);
 }
 
-function LotteryWithWeight($arr)
+function LotteryWithWeight($arr,$amount)
 {
     // Learn from https://www.jianshu.com/p/70c33bec2077
 	$probSum = 0;
@@ -629,7 +623,36 @@ function LotteryWithWeight($arr)
 	//打乱数组
 	shuffle($pool);
 
-	//抽奖
-	$randNum = rand(1, $probSum);
-	return $pool[$randNum - 1];
+    //抽奖
+    $return = array();
+    $randNums = UniqueRandom(1, $probSum, $amount);
+
+    foreach($randNums as $randNum)
+    {   
+        $return[] = $pool[$randNum - 1];
+    }
+	
+	return $return;
+}
+
+function UniqueRandom($min, $max, $num)
+{
+    // Learn from https://blog.csdn.net/llfdhr/article/details/53330841
+
+    //初始化变量为0
+    $count = 0;
+    //建一个新数组
+    $return = array();
+    while ($count < $num)
+    {
+        //在一定范围内随机生成一个数放入数组中
+        $return[] = mt_rand($min, $max);
+        //去除数组中的重复值用了“翻翻法”，就是用array_flip()把数组的key和value交换两次。这种做法比用 array_unique() 快得多。
+        $return = array_flip(array_flip($return));
+        //将数组的数量存入变量count中
+        $count = count($return);
+    }
+    //为数组赋予新的键名
+    shuffle($return);
+    return $return;
 }
