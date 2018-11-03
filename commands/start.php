@@ -61,7 +61,7 @@ if(isset($cmd[1]))
     if(!is_dir("./spc-log/$number/")) mkdir("./spc-log/$number/");
 
     $log = "================ Smart Probability Control Log - Start ================\r\n".
-    "---------- User Info ----------\r\n".
+    "----------------- User Info -----------------\r\n".
     "User ID: $from->id\r\n".
     "Username: $from->username\r\n".
     "First Name: $from->first_name\r\n".
@@ -110,7 +110,7 @@ if(isset($cmd[1]))
 
     // Cloud Vision API
     if($config['enable_vision_api'] !== true || $pic_count == 0) goto VisionEnd;
-    $log .= "##### Start Google Cloud Vision API Checking #####\r\n";
+    $log .= "### Start Google Cloud Vision API Checking ###\r\n";
 
     $photos = $pic_info->result->photos;
     $file_id = $photos[0][2]->file_id;
@@ -248,8 +248,8 @@ if(isset($cmd[1]))
     VisionEnd:
     $prob = round($prob,4);
     $log .= "Final probability result: $prob\r\n\r\n".
-    "================ Smart Probability Control Log - End ================";
-    file_put_contents("./spc-log/$number/SPC-$timestamp-$from->first_name.txt",$log);
+    "================= Smart Probability Control Log - End =================";
+    file_put_contents("./spc-log/$number/SPC-$timestamp-$from->first_name.log",$log);
     SmartOff:
     //======================================================================
     $rs = $c->query("INSERT INTO `$number` (`user_id`, `username`, `first_name`, `last_name`, `probability`, `join_time`, `lang_code`) VALUES ('$from->id', '$from->username', '$from->first_name', '$from->last_name', '$prob', '$timestamp', '$from->language_code')");
