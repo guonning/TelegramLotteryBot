@@ -259,7 +259,7 @@ function PlainText($from,$text)
 
         $t = "已设置奖品数: $user->amount 份".PHP_EOL .
         "是否启用智能中奖概率控制？(y/n)".PHP_EOL .
-        "该功能公测中，诚邀您参与测试，\r\n<a href=\"https://open.azuki.cloud/AzukiLotteryBot/docs/smart-probability-control.html\">了解更多</a>";
+        "该功能公测中，诚邀您参与测试，<a href=\"https://open.azuki.cloud/AzukiLotteryBot/docs/smart-probability-control.html\">了解更多</a>";
 
         if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
         {
