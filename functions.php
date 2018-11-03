@@ -259,7 +259,7 @@ function PlainText($from,$text)
 
         $t = "已设置奖品数: $user->amount 份".PHP_EOL .
         "是否启用智能中奖概率控制？(y/n)".PHP_EOL .
-        "该功能测试中！\r\n<a href=\"https://open.azuki.cloud/AzukiLotteryBot/docs/smart-probability-control.html\">了解更多</a>";
+        "该功能公测中，诚邀您参与测试，\r\n<a href=\"https://open.azuki.cloud/AzukiLotteryBot/docs/smart-probability-control.html\">了解更多</a>";
 
         if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
         {
@@ -517,6 +517,9 @@ function Lottery($number)
         }
 
         $winners = LotteryWithWeight($users,$prize);
+
+        //ReplyMessage(print_r($winners,true));
+
         foreach($winners as $winner)
         {
             $sql .= ' `id` = '.$winner['id'].' OR';  // add to sql statement
@@ -607,13 +610,14 @@ function LotteryWithWeight($arr,$amount)
 	if ($probSum <= 0)
 	{
 		return;
-	}
+    }
 
 	//初始化对象池， 相等于抽奖箱
 	$pool = array();
 
 	foreach ($arr as $v)
 	{
+        ReplyMessage(print_r($v,true));
 		for ($i = 0; $i <= $v['prob']; $i++)
 		{
 			$pool[] = $v;
@@ -621,7 +625,7 @@ function LotteryWithWeight($arr,$amount)
 	}
 
 	//打乱数组
-	shuffle($pool);
+    shuffle($pool);
 
     //抽奖
     $return = array();
