@@ -539,7 +539,7 @@ function Lottery($number)
     $t = "开奖成功！\r\n" .
     "抽奖名称: <b>$title</b>\r\n" .
     "创建者: <a href=\"tg://user?id=$req_uid\">$req_firstname</a>\r\n" .
-    "抽奖详情:\r\n<b>$details</b>\r\n" .
+    "抽奖详情:\r\n$details\r\n" .
     "奖品份数: <b>$prize 份</b>\r\n" .
     "唯一抽奖ID: <b>$number</b>\r\n" .
     "恭喜以下参与者中奖:\r\n";
