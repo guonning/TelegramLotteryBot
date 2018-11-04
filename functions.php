@@ -617,7 +617,6 @@ function LotteryWithWeight($arr,$amount)
 
 	foreach ($arr as $v)
 	{
-        ReplyMessage(print_r($v,true));
 		for ($i = 0; $i <= $v['prob']; $i++)
 		{
 			$pool[] = $v;
