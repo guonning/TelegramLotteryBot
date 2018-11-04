@@ -55,6 +55,11 @@ if(isset($cmd[1]))
         exit();
     }
 
+
+    //======================== Reply Message ==========================
+    ReplyMessage("成功参加抽奖 $title , 唯一抽奖ID: $number, 请等待开奖。");
+
+
     //==================== Smart Probability Control =======================
     if($smart != true) goto SmartOff;
 
@@ -257,11 +262,6 @@ if(isset($cmd[1]))
     if($rs === false)
     {
         ReplyMessage("内部错误，Bot Error 05: $c->error");
-        exit();
-    }
-    else
-    {
-        ReplyMessage("成功参加抽奖 $title , 唯一抽奖ID: $number, 请等待开奖。");
         exit();
     }
 }
