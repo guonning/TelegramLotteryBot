@@ -108,19 +108,17 @@ if(isset($cmd[1]))
 
     $pic_count = $pic_info->result->total_count;
 
-    if($pic_count >= 7) $prob = $prob + 0.065;
-    if($pic_count >= 2) $prob = $prob + 0.032;
+    if($pic_count >= 2) $prob = $prob + 0.04;
     if($pic_count == 0) $prob = $prob - 0.435;
     $log .= "Profile Photos Count: $pic_count, Prob = $prob\r\n\r\n";
 
     // Cloud Vision API
     if($config['enable_vision_api'] !== true || $pic_count == 0) goto VisionEnd;
-    $log .= "### Start Google Cloud Vision API Checking ###\r\n";
 
     $photos = $pic_info->result->photos;
     $file_id = $photos[0][2]->file_id;
 
-    //$log .= "Uploading user's recent profile photo...\r\n";
+    $log .= "Uploading user's recent profile photo to Google Cloud Vision API...\r\n";
     $vision = CloudVisionApi($file_id);
     if($vision === false)
     {
@@ -139,28 +137,28 @@ if(isset($cmd[1]))
     }
 
     //------------- preferred label -------------
-    $perfer1 = array_search('anime',array_column($labels,'description')); // personal preference, 不服咬我略略略
-    $perfer2 = array_search('cartoon',array_column($labels,'description'));
-    $perfer3 = array_search('illustration',array_column($labels,'description'));
+    $perfer[1] = array_search('anime',array_column($labels,'description')); // personal preference, 不服咬我略略略
+    $perfer[2] = array_search('cartoon',array_column($labels,'description'));
+    $perfer[3] = array_search('illustration',array_column($labels,'description'));
 
     // "anime" label
-    if($perfer1 !== false && $labels[$perfer1]->score >= 0.7)
+    if($perfer[1] !== false && $labels[$perfer[1]]->score >= 0.7)
     {
-        $prob = $prob + (0.29 * $labels[$perfer1]->score);
+        $prob = $prob + (0.29 * $labels[$perfer[1]]->score);
         $log .= "Detected profile photo containing \"Anime\", Prob = $prob\r\n";
     }
 
     // "cartoon" label
-    if($perfer2 !== false && $labels[$perfer2]->score >= 0.72)
+    if($perfer[2] !== false && $labels[$perfer[2]]->score >= 0.72)
     {
-        $prob = $prob + (0.22 * $labels[$perfer2]->score);
+        $prob = $prob + (0.22 * $labels[$perfer[2]]->score);
         $log .= "Detected profile photo containing \"Cartoon\", Prob = $prob\r\n";
     }
 
     // illust
-    if($perfer3 !== false && $labels[$perfer3]->score >= 0.63)
+    if($perfer[3] !== false && $labels[$perfer[3]]->score >= 0.63)
     {
-        $prob = $prob + (0.1 * $labels[$perfer3]->score);
+        $prob = $prob + (0.1 * $labels[$perfer[3]]->score);
         $log .= "Detected profile photo containing \"Illustration\", Prob = $prob\r\n";
     }
 
