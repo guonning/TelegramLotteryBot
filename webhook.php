@@ -125,7 +125,7 @@
             $t = "$from->first_name 创建的抽奖: ";
             while($row = $rs->fetch_assoc())
             {
-                $t .= '<b>'.$row['title']."</b>\r\n抽奖详情：\r\n<b>".$row['details']."</b>\r\n共抽取 <b>".$row['prize']."</b> 份奖品。\r\n唯一抽奖ID: <b>$number</b>\r\n\r\n<a href=\"https://t.me/tgLotteryBot?start=".$row['token']."\">点击加入</a>\r\n";
+                $t .= '<b>'.$row['title']."</b>\r\n抽奖详情：\r\n".$row['details']."\r\n共抽取 <b>".$row['prize']."</b> 份奖品。\r\n唯一抽奖ID: <b>$number</b>\r\n\r\n<a href=\"https://t.me/tgLotteryBot?start=".$row['token']."\">点击加入</a>\r\n";
             }
 
 
