@@ -9,4 +9,4 @@ else
 {
     ReplyMessage('目前没有创建中的抽奖。');
 }
-exit();
+quit();

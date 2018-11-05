@@ -198,7 +198,7 @@ function PlainText($from,$text)
         else
         {
             ReplyMessage('不支持的消息类型 或 当前没有 session 进行中');
-            exit();
+            quit();
         }
     }
     
@@ -219,10 +219,10 @@ function PlainText($from,$text)
         if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
         {
             ReplyMessage("内部错误 Bot Error 101: 无法写入session");
-            exit();
+            quit();
         }
         ReplyMessage("标题设置成功: <code>$user->title</code>\r\n接下来请发送给我抽奖详情，或发送 /cancel 取消抽奖。");
-        exit();
+        quit();
         break;
     
         case 2:  // Step 2: give me some details
@@ -231,17 +231,17 @@ function PlainText($from,$text)
         if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
         {
             ReplyMessage("内部错误 Bot Error 102: 无法写入session");
-            exit();
+            quit();
         }
         ReplyMessage("抽奖详情设置成功: <code>$user->details</code>\r\n接下来请发送给我中奖人数，或发送 /cancel 取消抽奖。");
-        exit();
+        quit();
         break;
     
         case 3:  // Step 3: give me amount of winner
         if(!is_numeric($text))
         {
             ReplyMessage('您输入的不是数字！请重新输入，或发送 /cancel 取消抽奖。');
-            exit();
+            quit();
         }
         $user->amount = (int)$text;
         $user->step = 4;
@@ -253,10 +253,10 @@ function PlainText($from,$text)
         if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
         {
             ReplyMessage("内部错误 Bot Error 103: 无法写入session");
-            exit();
+            quit();
         }
         ReplyMessage($t);
-        exit();
+        quit();
         break;
     
         case 4:  // Step 4: smart probability control
@@ -272,14 +272,14 @@ function PlainText($from,$text)
 
             default:
             ReplyMessage('无法识别您的输入，请回复 y/n 或取消 /cancel');
-            exit();
+            quit();
             break;
         }
         $user->step = 5;
         if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
         {
             ReplyMessage("内部错误 Bot Error 104: 无法写入session");
-            exit();
+            quit();
         }
 
         if($user->smart == true)
@@ -301,7 +301,7 @@ function PlainText($from,$text)
         $t .= "确认以上信息？(y/n)\r\n发送 <code>n</code> 或 /cancel 取消抽奖。";
 
         ReplyMessage($t);
-        exit();
+        quit();
         break;
 
         case 5:  // Step 5: confirm
@@ -322,13 +322,13 @@ function PlainText($from,$text)
             if($nrsp[1] == false)
             {
                 ReplyMessage("内部错误，Bot Error 01: $c->error");
-                exit();
+                quit();
             }
             $nrsp[2] = $c->query("CREATE TABLE `$number` LIKE `lottery_tpl`");
             if($nrsp[2] == false)
             {
                 ReplyMessage("内部错误，Bot Error 02: $c->error");
-                exit();
+                quit();
             }
 
             $t = "欢迎加入 $from->first_name 创建的抽奖". PHP_EOL .
@@ -340,7 +340,7 @@ function PlainText($from,$text)
 
             ReplyMessage($t);
             unlink("./sessions/$from->id.json");
-            exit();
+            quit();
             break;
     
     
@@ -353,12 +353,12 @@ function PlainText($from,$text)
     
             default:
             ReplyMessage('无法识别您的输入，请回复 y/n 或 /cancel');
-            exit();
+            quit();
             break;
         }
         break;
     }
-    exit();
+    quit();
 
 
     CheckConfirm:
@@ -375,7 +375,7 @@ function PlainText($from,$text)
             if($rs === false)
             {
                 ReplyMessage("内部错误，Bot Error 12: $c->error");
-                exit();
+                quit();
             }
             unlink("./sessions/confirm/$from->id.json");
             ReplyMessage('投票删除成功');
@@ -384,12 +384,12 @@ function PlainText($from,$text)
             case 'n':
             unlink("./sessions/confirm/$from->id.json");
             ReplyMessage('已取消');
-            exit();
+            quit();
             break;
 
             default:
             ReplyMessage('您的输入有误，请输入 <code>y</code> 确认或输入 <code>n</code> 取消。');
-            exit();
+            quit();
             break;
         }
         break;
@@ -401,18 +401,18 @@ function PlainText($from,$text)
             case 'y':
             if(Lottery($j->number) === false) ReplyMessage('开奖失败。');;
             unlink("./sessions/confirm/$from->id.json");
-            exit();
+            quit();
             break;
 
             case 'n':
             unlink("./sessions/confirm/$from->id.json");
             ReplyMessage('已取消开奖');
-            exit();
+            quit();
             break;
 
             default:
             ReplyMessage('您的输入有误，请输入 <code>y</code> 确认或输入 <code>n</code> 取消。');
-            exit();
+            quit();
             break;
         }
         break;
@@ -565,7 +565,7 @@ function ButtonCallback($callback_query)
         if($rs === false)
         {
             ReplyMessage("内部错误，Bot Error 11:\r\n$c->error",false,false,$from->id);
-            exit();
+            quit();
         }
         elseif($rs->num_rows === 0)
         {
@@ -595,8 +595,8 @@ function ButtonCallback($callback_query)
         EditMessage($t,$msg_id,$buttons,$from->id);
         break;
 
-    }  
-
+    }
+    
 
     answerCallbackQuery:
     $d = array(
@@ -605,7 +605,17 @@ function ButtonCallback($callback_query)
     if($text !== false) $d['text'] = $text;
     if($alert === true) $d['show_alert'] = true;
     TelegramAPI('answerCallbackQuery',$d);
-    exit();
+    quit();
+}
+
+function quit($txt = null)
+{
+    $output = ob_get_clean();  // save output
+    $ndate = date('Ymd');
+    $ntime = date('His');
+    if(!is_dir("./log/$ndate/")) mkdir("./log/$ndate/");
+    file_put_contents("./log/$ndate/$ntime-$from->id-$from->first_name-quit.log",$output);
+    exit($txt);
 }
 
 

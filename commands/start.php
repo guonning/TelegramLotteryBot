@@ -13,12 +13,12 @@ if(isset($cmd[1]))
     if($rs === false)
     {
         ReplyMessage("内部错误，Bot Error 03: $c->error");
-        exit();
+        quit();
     }
     elseif($rs->num_rows === 0)
     {
         ReplyMessage('未找到该抽奖');
-        exit();
+        quit();
     }
 
     while($row = $rs->fetch_assoc())
@@ -26,12 +26,12 @@ if(isset($cmd[1]))
         if($row['extracted'] == true)
         {
             ReplyMessage('该抽奖已经结束！'); 
-            exit();
+            quit();
         }
         elseif($row['closed'] == true)
         {
             ReplyMessage('该抽奖已经关闭！'); 
-            exit();
+            quit();
         }
         $number = $row['number'];
         $title = $row['title'];
@@ -47,12 +47,12 @@ if(isset($cmd[1]))
     if($rs === false)
     {
         ReplyMessage("内部错误，Bot Error 04: $c->error");
-        exit();
+        quit();
     }
     elseif($rs->num_rows !== 0)
     {
         ReplyMessage('你已经参加过这个抽奖了，请等待开奖~');
-        exit();
+        quit();
     }
 
 
@@ -103,7 +103,7 @@ if(isset($cmd[1]))
     if($pic_info->ok !== true)
     {
         ReplyMessage('内部错误，Bot Error 133');
-        exit();
+        quit();
     }
 
     $pic_count = $pic_info->result->total_count;
@@ -123,7 +123,7 @@ if(isset($cmd[1]))
     if($vision === false)
     {
         ReplyMessage("内部错误，Bot Error 121: Vision API Request Failed");
-        exit();
+        quit();
     }
 
     $vision = json_decode($vision);
@@ -133,7 +133,7 @@ if(isset($cmd[1]))
     if(isset($vision->error))
     {
         ReplyMessage("内部错误，Bot Error 135: Vision API Error\r\n".$vision->error->message);
-        exit();
+        quit();
     }
 
     //------------- preferred label -------------
@@ -260,7 +260,7 @@ if(isset($cmd[1]))
     if($rs === false)
     {
         ReplyMessage("内部错误，Bot Error 05: $c->error");
-        exit();
+        quit();
     }
 }
 else

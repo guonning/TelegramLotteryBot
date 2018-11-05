@@ -21,6 +21,8 @@ if(isset($data->callback_query))
 }
 elseif(!isset($data->message)) exit('no message object');
 
+ob_start();  // 开始记录输出内容 便于调试
+
 $message = $data->message;
 $from = $message->from;  // id, is_bot, first_name, last_name, username, language_code
 $text = $message->text;  // full message text
@@ -29,7 +31,7 @@ $text = $message->text;  // full message text
 if($message->chat->type != 'private')
 {
     ReplyMessage('本bot仅支持私聊使用。');
-    exit();
+    quit();
 }
 
 // is it a cmd ?
@@ -62,7 +64,7 @@ if($is_cmd == true) switch($cmd[0])
     case '/my':  // 查看当前的抽奖
     require_once('./commands/my.php');
     ReplyMessage($t,false,$buttons);
-    exit();
+    quit();
     break;
 
     default:
@@ -73,3 +75,11 @@ if($is_cmd == true) switch($cmd[0])
 
 //====================================================================================
 if($is_cmd == false) PlainText($from,$text);  // plain text, maybe in the session.
+
+$output = ob_get_clean();  // save output
+
+$ndate = date('Ymd');
+$ntime = date('His');
+
+if(!is_dir("./log/$ndate/")) mkdir("./log/$ndate/");
+file_put_contents("./log/$ndate/$ntime-$from->id-$from->first_name.log",$output);
