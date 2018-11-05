@@ -733,7 +733,7 @@ function Lottery($number)
         }
 
         $users = array();
-        $i = 0
+        $i = 0;
         while($row = $rs->fetch_assoc())
         {
             $users[$i]['id'] = $row['id'];
