@@ -883,7 +883,6 @@ function LotteryWithWeight($arr,$amount)
 
     foreach($randNums as $randNum)
     {   
-        $log .= "Foreach, randNum = $randNum\r\n\r\n";
         $return[] = $pool[$randNum - 1];
     }
     
@@ -908,6 +907,5 @@ function UniqueRandom($min, $max, $num)
     }
     //为数组赋予新的键名
     shuffle($return);
-    $log .= "UniqueRandom: ".print_r($return,true)."\r\n";
     return $return;
 }
