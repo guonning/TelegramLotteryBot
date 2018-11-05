@@ -794,6 +794,8 @@ function Lottery($number)
     $log .= "Updated Lottery Status.\r\n\r\n";
     $log .= "Reply Text: \r\n$t\r\n";
     ReplyMessage($t);
+
+    file_put_contents("./lott-log/$number.log",$log);
 }
 
 // Call Winner
