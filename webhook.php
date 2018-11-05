@@ -10,21 +10,22 @@ if(!isset($_GET['key']) || $_GET['key'] != $config['key'])
     exit('<h1>403 Forbidden<h1>');
 }
 
+ob_start();  // 开始记录输出内容 便于调试
+
 $raw = file_get_contents('php://input');
 $data = json_decode($raw);
+
+print_r($data);
+echo "\r\n";
 
 // is it an inline callback query?
 if(isset($data->callback_query))
 {
     ButtonCallback($data->callback_query);
-    exit('inline callback');
+    echo "Inline Callback";
+    quit('inline callback');
 }
-elseif(!isset($data->message)) exit('no message object');
-
-ob_start();  // 开始记录输出内容 便于调试
-
-print_r($data);
-echo "\r\n";
+elseif(!isset($data->message)) quit('no message object');
 
 $message = $data->message;
 $from = $message->from;  // id, is_bot, first_name, last_name, username, language_code
