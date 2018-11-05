@@ -851,7 +851,6 @@ function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req
 
 function LotteryWithWeight($arr,$amount)
 {
-    $log .= "Amount: $amount\r\nUsers: ".print_r($arr,true)."\r\n";
     // Learn from https://www.jianshu.com/p/70c33bec2077
 	$probSum = 0;
 	foreach($arr as $value)
@@ -893,7 +892,6 @@ function LotteryWithWeight($arr,$amount)
 
 function UniqueRandom($min, $max, $num)
 {
-    $log .= "UniqueRandom(min=$min, max=$max, num=$num)\r\n";
     // Learn from https://blog.csdn.net/llfdhr/article/details/53330841
     //初始化变量为0
     $count = 0;
