@@ -613,8 +613,23 @@ function quit($txt = null)
     $output = ob_get_clean();  // save output
     $ndate = date('Ymd');
     $ntime = date('His');
-    if(!is_dir("./log/$ndate/")) mkdir("./log/$ndate/");
-    file_put_contents("./log/$ndate/$ntime-$from->id-$from->first_name-quit.log",$output);
+    if(file_exists("./log/$ndate/$ntime.log"))
+    {
+        $i = 2;
+        while(!file_exists("./log/$ndate/$ntime-$i.log")) $i++;
+        $filename = "$ntime-$i.log";
+    }
+    else
+    {
+        $filename = "$ntime.log";
+    }
+
+    if(!is_dir("./log/$ndate/"))
+    {
+        mkdir("./log/$ndate/");
+        copy('./log/index.php',"./log/$ndate/index.php");
+    }
+    file_put_contents("./log/$ndate/$filename",$output);
     exit($txt);
 }
 
@@ -718,21 +733,24 @@ function Lottery($number)
         }
 
         $users = array();
+        $i = 0
         while($row = $rs->fetch_assoc())
         {
-            $users[]['id'] = $row['id'];
+            $users[$i]['id'] = $row['id'];
             //$users[$i]['user_id'] = $row['user_id'];
             //$users[$i]['username'] = $row['username'];
             //$users[$i]['first_name'] = $row['first_name'];
             //$users[$i]['last_name'] = $row['last_name'];
-            $users[]['prob'] = $row['probability'] * 10000;
+            $users[$i]['prob'] = $row['probability'] * 10000;
             //$users[$i]['join_time'] = $row['join_time'];
             //$users[$i]['lang_code'] = $row['lang_code'];
             $log .= "While:\r\nID: ".$row['id']."\r\nProb: ".$row['probability']."\r\n\r\n";
+            $i++;
         }
 
         $log .= "Start Lottery With Weight\r\n";
         $winners = LotteryWithWeight($users,$prize);
+        $log .= "LotteryWithWeight: ".print_r($winners,true)."\r\n\r\n";
 
         //ReplyMessage(print_r($winners,true));
 
@@ -792,6 +810,7 @@ function Lottery($number)
             $req_username,
             $req_firstname
         );
+        $log .= "Call Winner: ".$row['user_id']."\r\n\r\n";
     }
 
     $t .= "\r\n已经PM通知获奖者，请尽快领奖";
@@ -827,7 +846,6 @@ function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req
     "唯一抽奖ID: <code>$number</code>\r\n".
     "请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。\r\n\r\n".
     "Powered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
-    $log .= "Call Winner:\r\n$msg\r\n\r\n";
     ReplyMessage($msg,false,false,$uid);
 }
 
@@ -869,8 +887,6 @@ function LotteryWithWeight($arr,$amount)
         $log .= "Foreach, randNum = $randNum\r\n\r\n";
         $return[] = $pool[$randNum - 1];
     }
-    
-    $log .= "LotteryWithWeight: ".print_r($return,true)."\r\n\r\n";
     
 	return $return;
 }

@@ -46,30 +46,33 @@ else
 }
 
 // switch commands
-$cmd[0] = strtolower($cmd[0]);
-if($is_cmd == true) switch($cmd[0])
+if($is_cmd == true) 
 {
-    case '/start':
-    require_once('./commands/start.php');
-    break;
+    $cmd[0] = strtolower($cmd[0]);
+    switch($cmd[0])
+    {
+        case '/start':
+        require_once('./commands/start.php');
+        break;
 
-    case '/new':
-    require_once('./commands/new.php');
-    break;
+        case '/new':
+        require_once('./commands/new.php');
+        break;
 
-    case '/cancel':  // cancel when creating a new lottery 
-    require_once('./commands/cancel.php');
-    break;
+        case '/cancel':  // cancel when creating a new lottery 
+        require_once('./commands/cancel.php');
+        break;
 
-    case '/my':  // 查看当前的抽奖
-    require_once('./commands/my.php');
-    ReplyMessage($t,false,$buttons);
-    quit();
-    break;
+        case '/my':  // 查看当前的抽奖
+        require_once('./commands/my.php');
+        ReplyMessage($t,false,$buttons);
+        quit();
+        break;
 
-    default:
-    ReplyMessage('未知指令');
-    break;
+        default:
+        ReplyMessage('未知指令');
+        break;
+    }
 }
 
 
@@ -81,5 +84,20 @@ $output = ob_get_clean();  // save output
 $ndate = date('Ymd');
 $ntime = date('His');
 
-if(!is_dir("./log/$ndate/")) mkdir("./log/$ndate/");
-file_put_contents("./log/$ndate/$ntime-$from->id-$from->first_name.log",$output);
+if(file_exists("./log/$ndate/$ntime.log"))
+{
+    $i = 2;
+    while(!file_exists("./log/$ndate/$ntime-$i.log")) $i++;
+    $filename = "$ntime-$i.log";
+}
+else
+{
+    $filename = "$ntime.log";
+}
+
+if(!is_dir("./log/$ndate/"))
+{
+    mkdir("./log/$ndate/");
+    copy('./log/index.php',"./log/$ndate/index.php");
+}
+file_put_contents("./log/$ndate/$filename",$output);
