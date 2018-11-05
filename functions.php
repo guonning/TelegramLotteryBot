@@ -72,7 +72,7 @@ function ReplyMessage($msg,$by_reply = false,$reply_markup = false,$chat_id = fa
         'disable_web_page_preview' => true,
         'parse_mode' => 'html'
     ));
-    file_put_contents('./ErrorReport-SendMessage-'.time().'.txt',"API Error\r\n".print_r($return,true));
+    file_put_contents('./ErrorReport-SendMessage-'.date('Ymd-His').'.txt',"API Error\r\n".print_r($return,true));
     $error_report = true;
     goto CurlSend;
     return false;
@@ -124,7 +124,7 @@ function EditMessage($msg,$msgid,$reply_markup = false,$chat_id = false)
         'disable_web_page_preview' => true,
         'parse_mode' => 'html'
     ));
-    file_put_contents('./ErrorReport-editMessageText-'.time().'.txt',"API Error\r\n".print_r($return,true));
+    file_put_contents('./ErrorReport-editMessageText-'.date('Ymd-His').'.txt',"API Error\r\n".print_r($return,true));
     $error_report = true;
     goto CurlSend;
     return false;
