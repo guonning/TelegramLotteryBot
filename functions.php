@@ -79,14 +79,14 @@ function ReplyMessage($msg,$by_reply = false,$reply_markup = false,$chat_id = fa
 }
 
 // editMessageText
-function EditMessage($msg,$msgid,$reply_markup = false,$chat_id = false)
+function EditMessage($msg,$msgid,$chat_id,$reply_markup = false)
 {
     // Send Message
     global $config,$message;
     $token = $config['bot_token'];
 
     $d = array(
-        'chat_id' => $message->chat->id,
+        'chat_id' => $chat_id,
         'message_id' => $msgid,
         'text' => $msg,
         'disable_web_page_preview' => true,
@@ -94,7 +94,6 @@ function EditMessage($msg,$msgid,$reply_markup = false,$chat_id = false)
     );
 
     if($reply_markup !== false) $d['reply_markup'] = $reply_markup;
-    if($chat_id !== false) $d['chat_id'] = $chat_id;
 
     $d = json_encode($d);
 
@@ -523,7 +522,7 @@ function ButtonCallback($callback_query)
         );
 
         $btn = json_encode(array('inline_keyboard'=>array($buttons)));
-        EditMessage($t,$msg_id,$btn,$from->id);
+        EditMessage($t,$msg_id,$from->id,$btn);
         break;
             
 
@@ -554,7 +553,7 @@ function ButtonCallback($callback_query)
             $se = json_encode($se);
             file_put_contents("./sessions/confirm/$from->id.json",$se);
         }
-        EditMessage($t,$msg_id,false,$from->id);
+        EditMessage($t,$msg_id,$from->id);
         break;
 
 
@@ -585,14 +584,14 @@ function ButtonCallback($callback_query)
             $se = json_encode($se);
             file_put_contents("./sessions/confirm/$from->id.json",$se);
         }
-        EditMessage($t,$msg_id,false,$from->id);
+        EditMessage($t,$msg_id,$from->id);
         break;
 
 
         //========================================
         case 'list':
         require_once('./commands/my.php');
-        EditMessage($t,$msg_id,$buttons,$from->id);
+        EditMessage($t,$msg_id,$from->id,$buttons);
         break;
 
     }
