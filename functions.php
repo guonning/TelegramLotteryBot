@@ -5,21 +5,11 @@
 // any method
 function TelegramAPI($method,array $d)
 {
-    // Send Message
-    global $config,$message;
+    global $config;
     $token = $config['bot_token'];
 
-    /*
-    $d = array(
-		'chat_id' => $message->chat->id,
-        'text' => $msg,
-        'disable_web_page_preview' => true,
-        'parse_mode' => 'html'
-    );
-    */
     $d = json_encode($d);
 
-    CurlSend:
     $ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, "https://api.telegram.org/bot$token/$method");
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -30,7 +20,6 @@ function TelegramAPI($method,array $d)
 	curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
 	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
     curl_setopt($ch, CURLOPT_POSTFIELDS, $d);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $config['curl_timeout']);
 	
 	$res = curl_exec($ch);
     curl_close($ch);
@@ -430,12 +419,204 @@ function PlainText($from,$text)
     }
 }
 
+function ButtonCallback($callback_query)
+{
+    // deal InlineKeyboardButton's callback query
+    global $config;
+    $text = false;  // Text of the notification, can be unset.
+    $alert = false;  // show alert, not notification
+
+    $dt = explode(':',$callback_query->data);
+    $number = $dt[1];        
+    $from = $callback_query->from;
+    $msg_id = $callback_query->message->message_id;
+    $hash = $dt[2];
+
+    if($hash != md5($number.$from->id.$config['key']))
+    {
+        $alert = true;
+        $text = "鉴权失败: $callback_query->data\r\nFrom User: $from->id";
+        goto answerCallbackQuery;
+    }
+
+    switch($dt[0])
+    {
+
+        //========================================
+        case 'stat':
+        $c = GetDbConn();
+
+        $rs = $c->query("SELECT * FROM `lottery_list` WHERE `number` = '$number'");
+        if($rs === false)
+        {
+            $alert = true;
+            $text = "内部错误，Bot Error 07:\r\n$c->error";
+            goto answerCallbackQuery;
+        }
+        elseif($rs->num_rows === 0)
+        {
+            $alert = true;
+            $text = "未找到抽奖？？我也不知道发生了啥反正没找着\r\n内部错误，Bot Error 08";
+            goto answerCallbackQuery;
+        }
+
+        $t = "$from->first_name 创建的抽奖: ";
+        while($row = $rs->fetch_assoc())
+        {
+            $t .= '<b>'.$row['title']."</b>\r\n抽奖详情：\r\n".$row['details']."\r\n共抽取 <b>".$row['prize']."</b> 份奖品。\r\n唯一抽奖ID: <b>$number</b>\r\n\r\n<a href=\"https://t.me/tgLotteryBot?start=".$row['token']."\">点击加入</a>\r\n";
+        }
+
+        $rs = $c->query("SELECT * FROM `$number`");
+        if($rs === false)
+        {
+            $alert = true;
+            $text = "内部错误，Bot Error 09:\r\n$c->error";
+            goto answerCallbackQuery;
+        }
+        elseif($rs->num_rows === 0)
+        {
+            $t .= '当前还没有人参加抽奖哦~';
+        }
+        else
+        {
+            $t .= "当前有 $rs->num_rows 人参与了抽奖";
+
+            $i = 0;
+            while($row = $rs->fetch_assoc())
+            {
+                $json[$i] = array(
+                    'id' => $row['id'],
+                    'user_id' => $row['user_id'],
+                    'username' => $row['username'],
+                    'first_name' => $row['first_name'],
+                    'last_name' => $row['last_name'],
+                    'join_time' => date('Y-m-d H:i:s',$row['join_time']),
+                    'lang_code' => $row['lang_code']
+                );
+                $i++;
+            }
+        
+        }
+
+        $json = json_encode($json);
+
+        file_put_contents("./sessions/details/$hash.json",$json);
+
+        $buttons[0] = array(
+            'text' => '开奖',
+            'callback_data' => 'lottery:'.$number.':'.hash('MD5',$number.$from->id.$config['key'])
+        );
+
+        $buttons[1] = array(
+            'text' => '取消抽奖',
+            'callback_data' => 'delete:'.$number.':'.hash('MD5',$number.$from->id.$config['key'])
+        );
+
+        $buttons[2] = array(
+            'text' => '查看详情',
+            'url' => $config['base_url']."/details/$number/$hash"
+        );
+
+        $buttons[3] = array(
+            'text' => '返回',
+            'callback_data' => 'list:'.$number.':'.hash('MD5',$number.$from->id.$config['key'])
+        );
+
+        $btn = json_encode(array('inline_keyboard'=>array($buttons)));
+        EditMessage($t,$msg_id,$btn,$from->id);
+        break;
+            
+
+        //========================================
+        case 'lottery':
+        $c = GetDbConn();
+        $rs = $c->query("SELECT `number`,`title` FROM `lottery_list` WHERE `number` = $number AND `closed` = 0 AND `extracted` = 0");
+        if($rs === false)
+        {
+            ReplyMessage("内部错误，Bot Error 10:\r\n$c->error",false,false,$from->id);
+            goto answerCallbackQuery;
+        }
+        elseif($rs->num_rows === 0)
+        {
+            $t = '该抽奖不存在 / 已开奖 / 已取消！';
+        }
+        else
+        {   
+            while($row = $rs->fetch_assoc())
+            {
+                $t = '开奖确认: '.$row['title'].' (ID <code>'.$row['number']."</code>)\r\n";
+            }
+            $t .= "当前有 $rs->num_rows 人参与了抽奖。\r\n\r\n确定开奖吗？(y/n)";
+            $se = array(
+                'type' => 'lottery',
+                'number' => $number
+            );
+            $se = json_encode($se);
+            file_put_contents("./sessions/confirm/$from->id.json",$se);
+        }
+        EditMessage($t,$msg_id,false,$from->id);
+        break;
+
+
+        //========================================
+        case 'delete':
+        $c = GetDbConn();
+        $rs = $c->query("SELECT `number`,`title` FROM `lottery_list` WHERE `number` = $number AND `extracted` = 0 AND `closed` = 0");
+        if($rs === false)
+        {
+            ReplyMessage("内部错误，Bot Error 11:\r\n$c->error",false,false,$from->id);
+            exit();
+        }
+        elseif($rs->num_rows === 0)
+        {
+            $t = '该抽奖不存在 / 已开奖 / 已取消！';
+        }
+        else
+        {
+            while($row = $rs->fetch_assoc())
+            {
+                $t = '删除确认: '.$row['title'].' (ID <code>'.$row['number']."</code>)\r\n";
+            }
+            $t .= "当前有 $rs->num_rows 人参与了抽奖。\r\n\r\n确定要取消并删除该抽奖？(y/n)";
+            $se = array(
+                'type' => 'delete',
+                'number' => $number
+            );
+            $se = json_encode($se);
+            file_put_contents("./sessions/confirm/$from->id.json",$se);
+        }
+        EditMessage($t,$msg_id,false,$from->id);
+        break;
+
+
+        //========================================
+        case 'list':
+        require_once('./commands/my.php');
+        EditMessage($t,$msg_id,$buttons,$from->id);
+        break;
+
+    }  
+
+
+    answerCallbackQuery:
+    $d = array(
+        'callback_query_id' => $callback_query->id,
+    );
+    if($text !== false) $d['text'] = $text;
+    if($alert === true) $d['show_alert'] = true;
+    TelegramAPI('answerCallbackQuery',$d);
+    exit();
+}
+
 
 //============================== Lottery ===================================
 
 function Lottery($number)
 {
     ReplyMessage("正在尝试开奖并通知中奖者，这可能需要一些时间，请稍候...");
+
+    $log = "================ Lottery Log - Start ================\r\n";
+    $log .= date('Y-m-d H:i:s')."\r\n";
 
     $c = GetDbConn();
     $rs = $c->query("SELECT max(id) FROM `$number`");
@@ -445,6 +626,8 @@ function Lottery($number)
         exit();
     }
     $joined = $rs->fetch_assoc()['max(id)'];
+
+    $log .= "Joined: $joined\r\n";
 
     // get lottery's info
     $rs = $c->query("SELECT * FROM `lottery_list` WHERE `number` = '$number'");
@@ -463,6 +646,16 @@ function Lottery($number)
         $req_uid = $row['req_uid'];
         $req_username = $row['req_username'];
         $req_firstname = $row['req_firstname'];
+
+        $log .= "Number: $number\r\n".
+        "Title: $title\r\n".
+        "Details: $details\r\n".
+        "Prize: $prize\r\n".
+        "Smart Lottery: $smart\r\n".
+        "Creator ID: $req_uid\r\n".
+        "Creator Username: $req_username\r\n".
+        "Creator First Name: $req_firstname\r\n\r\n";
+
         if($prize > 25) $big_lottery = true;
         else $big_lottery = false;
     }
@@ -470,6 +663,7 @@ function Lottery($number)
     if($joined < $prize)
     {
         ReplyMessage("开奖失败，已经加入抽奖的 $joined 人小于您设置的 $prize 份奖品！");
+        $log .= '开奖失败，人数不足。';
         exit();
     }
 
@@ -477,22 +671,30 @@ function Lottery($number)
 
     if($smart == false)
     {
+        $log .= "Smart Lottery: Off\r\n\r\n";
         // random join id
         for($i = 1; $i <= $prize; $i++)
         {
+            $log .= "For=$i\r\n";
             RandomAgain:
             $rand = random_int(1,$joined);
+            $log .= "random_int = $rand\r\n";
             if(in_array($rand,$winner) == true)
             {
+                $log .= "Random Again, \r\n";
                 goto RandomAgain;
             }
             $winner[$i] = $rand;
 
             $sql .= " `id` = $rand OR";  // add to sql statement
+
+            $log .= "\r\n";
         }
+
     }
     elseif($smart == true)
     {
+        $log .= "Smart Lottery: On\r\n\r\n";
         // 智能概率控制
         $rs = $c->query("SELECT * FROM `$number`");
         if($rs === false)
@@ -502,32 +704,34 @@ function Lottery($number)
         }
 
         $users = array();
-        $i = 0;
         while($row = $rs->fetch_assoc())
         {
-            $users[$i]['id'] = $row['id'];
+            $users[]['id'] = $row['id'];
             //$users[$i]['user_id'] = $row['user_id'];
             //$users[$i]['username'] = $row['username'];
             //$users[$i]['first_name'] = $row['first_name'];
             //$users[$i]['last_name'] = $row['last_name'];
-            $users[$i]['prob'] = $row['probability'] * 10000;
+            $users[]['prob'] = $row['probability'] * 10000;
             //$users[$i]['join_time'] = $row['join_time'];
             //$users[$i]['lang_code'] = $row['lang_code'];
-            $i++;
+            $log .= "While:\r\nID: ".$row['id']."\r\nProb: ".$row['probability']."\r\n\r\n";
         }
 
+        $log .= "Start Lottery With Weight\r\n";
         $winners = LotteryWithWeight($users,$prize);
 
         //ReplyMessage(print_r($winners,true));
 
         foreach($winners as $winner)
         {
+            $log .= "Lottery Foreach:\r\n".print_r($winner)."\r\n\r\n";
             $sql .= ' `id` = '.$winner['id'].' OR';  // add to sql statement
         }
 
     }
 
     $sql .= "DER BY `user_id` ASC";  // sql suffix, lol
+    $log .= "SQL: $sql\r\n\r\n";
 
     $rs = $c->query($sql);
     if($rs === false)
@@ -535,6 +739,7 @@ function Lottery($number)
         ReplyMessage("内部错误，Bot Error 22: $c->error");
         exit();
     }
+    $log .= "SQL Queried Successfully.\r\n\r\n";
 
     $t = "开奖成功！\r\n" .
     "抽奖名称: <b>$title</b>\r\n" .
@@ -586,20 +791,28 @@ function Lottery($number)
         ReplyMessage("内部错误，更新投票状态失败，Bot Error 23: $c->error");
         exit();
     }
+    $log .= "Updated Lottery Status.\r\n\r\n";
+    $log .= "Reply Text: \r\n$t\r\n";
     ReplyMessage($t);
 }
 
 // Call Winner
 function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req_username,$req_firstname)
 {
-    $msg = "$firstname, 恭喜你中奖！\r\n中奖详情如下:\r\n抽奖标题: <b>$title</b>\r\n抽奖详情:\r\n<b>$details</b>\r\n唯一抽奖ID: <code>$number</code>\r\n请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。";
-    // AD
-    $msg .= "\r\n\r\nPowered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
+    $msg = "$firstname, 恭喜你中奖！\r\n".
+    "中奖详情如下:\r\n".
+    "抽奖标题: <b>$title</b>\r\n".
+    "抽奖详情:\r\n<b>$details</b>\r\n".
+    "唯一抽奖ID: <code>$number</code>\r\n".
+    "请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。\r\n\r\n".
+    "Powered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
+    $log .= "Call Winner:\r\n$msg\r\n\r\n";
     ReplyMessage($msg,false,false,$uid);
 }
 
 function LotteryWithWeight($arr,$amount)
 {
+    $log .= "Amount: $amount\r\nUsers: ".print_r($arr,true)."\r\n";
     // Learn from https://www.jianshu.com/p/70c33bec2077
 	$probSum = 0;
 	foreach($arr as $value)
@@ -632,16 +845,19 @@ function LotteryWithWeight($arr,$amount)
 
     foreach($randNums as $randNum)
     {   
+        $log .= "Foreach, randNum = $randNum\r\n\r\n";
         $return[] = $pool[$randNum - 1];
     }
-	
+    
+    $log .= "LotteryWithWeight: ".print_r($return,true)."\r\n\r\n";
+    
 	return $return;
 }
 
 function UniqueRandom($min, $max, $num)
 {
+    $log .= "UniqueRandom(min=$min, max=$max, num=$num)\r\n";
     // Learn from https://blog.csdn.net/llfdhr/article/details/53330841
-
     //初始化变量为0
     $count = 0;
     //建一个新数组
@@ -657,5 +873,6 @@ function UniqueRandom($min, $max, $num)
     }
     //为数组赋予新的键名
     shuffle($return);
+    $log .= "UniqueRandom: ".print_r($return,true)."\r\n";
     return $return;
 }
