@@ -846,19 +846,6 @@ function Lottery($number)
     return $return;
 }
 
-// Call Winner
-function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req_username,$req_firstname)
-{
-    $msg = "$firstname, 恭喜你中奖！\r\n".
-    "中奖详情如下:\r\n".
-    "抽奖标题: <b>$title</b>\r\n".
-    "抽奖详情:\r\n<b>$details</b>\r\n".
-    "唯一抽奖ID: <code>$number</code>\r\n".
-    "请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。\r\n\r\n".
-    "Powered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
-    ReplyMessage($msg,false,false,$uid);
-}
-
 function LotteryWithWeight($arr,$amount)
 {
     // Learn from https://www.jianshu.com/p/70c33bec2077
@@ -918,4 +905,17 @@ function UniqueRandom($min, $max, $num)
     //为数组赋予新的键名
     shuffle($return);
     return $return;
+}
+
+// Call Winner
+function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req_username,$req_firstname)
+{
+    $msg = "$firstname, 恭喜你中奖！\r\n".
+    "中奖详情如下:\r\n".
+    "抽奖标题: <b>$title</b>\r\n".
+    "抽奖详情:\r\n<b>$details</b>\r\n".
+    "唯一抽奖ID: <code>$number</code>\r\n".
+    "请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。\r\n\r\n".
+    "Powered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
+    ReplyMessage($msg,false,false,$uid);
 }
