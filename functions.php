@@ -611,6 +611,7 @@ function ButtonCallback($callback_query)
 function quit($txt = null)
 {
     $output = ob_get_clean();  // save output
+    if($output == '') exit();
     $ndate = date('Ymd');
     $ntime = date('His');
     if(file_exists("./log/$ndate/$ntime.log"))

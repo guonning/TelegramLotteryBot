@@ -93,6 +93,8 @@ if($is_cmd == false)
 
 $output = ob_get_clean();  // save output
 
+if($output == '') exit();
+
 $ndate = date('Ymd');
 $ntime = date('His');
 
