@@ -31,6 +31,9 @@ function ReplyMessage($msg,$by_reply = false,$reply_markup = false,$chat_id = fa
 {
     // Send Message
     global $config,$message;
+
+    echo "ReplyMessage: $msg\r\n";
+
     $token = $config['bot_token'];
 
     $d = array(
