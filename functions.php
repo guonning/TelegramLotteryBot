@@ -610,19 +610,25 @@ function ButtonCallback($callback_query)
 
 function quit($txt = null)
 {
+    global $from;
     $output = ob_get_clean();  // save output
     if($output == '') exit();
+
     $ndate = date('Ymd');
     $ntime = date('His');
+
+    if(!isset($from->username)) $user = $from->id;
+    else $user = $from->username;
+
     if(file_exists("./log/$ndate/$ntime.log"))
     {
         $i = 2;
-        while(!file_exists("./log/$ndate/$ntime-$i.log")) $i++;
-        $filename = "$ntime-$i.log";
+        while(!file_exists("./log/$ndate/$ntime-$user-$i.log")) $i++;
+        $filename = "$ntime-$user-$i.log";
     }
     else
     {
-        $filename = "$ntime.log";
+        $filename = "$ntime-$user.log";
     }
 
     if(!is_dir("./log/$ndate/"))
