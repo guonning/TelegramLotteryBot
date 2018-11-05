@@ -23,6 +23,9 @@ elseif(!isset($data->message)) exit('no message object');
 
 ob_start();  // 开始记录输出内容 便于调试
 
+print_r($data);
+echo "\r\n";
+
 $message = $data->message;
 $from = $message->from;  // id, is_bot, first_name, last_name, username, language_code
 $text = $message->text;  // full message text
@@ -52,24 +55,29 @@ if($is_cmd == true)
     switch($cmd[0])
     {
         case '/start':
+        echo "Command: /start\r\n";
         require_once('./commands/start.php');
         break;
 
         case '/new':
+        echo "Command: /new\r\n";
         require_once('./commands/new.php');
         break;
 
         case '/cancel':  // cancel when creating a new lottery 
+        echo "Command: /cancel\r\n";
         require_once('./commands/cancel.php');
         break;
 
         case '/my':  // 查看当前的抽奖
+        echo "Command: /my\r\n";
         require_once('./commands/my.php');
         ReplyMessage($t,false,$buttons);
         quit();
         break;
 
         default:
+        echo "Undefind Command\r\n";
         ReplyMessage('未知指令');
         break;
     }
@@ -77,7 +85,11 @@ if($is_cmd == true)
 
 
 //====================================================================================
-if($is_cmd == false) PlainText($from,$text);  // plain text, maybe in the session.
+if($is_cmd == false)
+{
+    echo "Plain Text\r\n";
+    PlainText($from,$text);  // plain text, maybe in the session.
+}
 
 $output = ob_get_clean();  // save output
 
