@@ -188,6 +188,7 @@ function GetDbConn()
 // Deal the plaun text
 function PlainText($from,$text)
 {
+    global $config;
     if(!file_exists("./sessions/$from->id.json"))
     {
         if(file_exists("./sessions/confirm/$from->id.json"))
