@@ -878,6 +878,8 @@ function LotteryWithWeight($arr,$amount)
     $return = array();
     $randNums = UniqueRandom(1, $probSum, $amount);
 
+    echo "UniqueRandom(1, $probSum, $amount) 结果如下: ".print_r($randNum,true)."\r\n\r\n";
+
     foreach($randNums as $randNum)
     {   
         $return[] = $pool[$randNum - 1];
