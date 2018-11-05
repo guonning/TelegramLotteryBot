@@ -620,14 +620,15 @@ function quit($txt = null)
     $ndate = date('Ymd');
     $ntime = date('His');
 
-    if(!isset($from->username)) $user = $from->id;
-    else $user = $from->username;
+    if(!isset($from)) $user = '';
+    elseif(!isset($from->username)) $user = '-'.$from->id;
+    else $user = '-'.$from->username;
 
     if(file_exists("./log/$ndate/$ntime.log"))
     {
         $i = 2;
         while(!file_exists("./log/$ndate/$ntime-$user-$i.log")) $i++;
-        $filename = "$ntime-$user-$i.log";
+        $filename = "$ntime$user-$i.log";
     }
     else
     {
@@ -878,7 +879,7 @@ function LotteryWithWeight($arr,$amount)
     $return = array();
     $randNums = UniqueRandom(1, $probSum, $amount);
 
-    echo "UniqueRandom(1, $probSum, $amount) 结果如下: ".print_r($randNum,true)."\r\n\r\n";
+    echo "UniqueRandom(1, $probSum, $amount) 结果如下: ".print_r($randNums,true)."\r\n\r\n";
 
     foreach($randNums as $randNum)
     {   

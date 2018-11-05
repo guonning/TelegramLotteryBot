@@ -99,8 +99,9 @@ if($output == '') exit();
 $ndate = date('Ymd');
 $ntime = date('His');
 
-if(!isset($from->username)) $user = $from->id;
-else $user = $from->username;
+if(!isset($from)) $user = '';
+elseif(!isset($from->username)) $user = '-'.$from->id;
+else $user = '-'.$from->username;
 
 if(file_exists("./log/$ndate/$ntime.log"))
 {
