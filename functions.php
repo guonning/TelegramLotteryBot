@@ -399,7 +399,7 @@ function PlainText($from,$text)
         switch($text)
         {
             case 'y':
-            Lottery($j->number);
+            if(Lottery($j->number) === false) ReplyMessage('开奖失败。');;
             unlink("./sessions/confirm/$from->id.json");
             exit();
             break;
@@ -623,7 +623,8 @@ function Lottery($number)
     if($rs === false)
     {
         ReplyMessage("内部错误，Bot Error 20: $c->error");
-        exit();
+        $return = false;
+        goto SaveLog;
     }
     $joined = $rs->fetch_assoc()['max(id)'];
 
@@ -634,7 +635,8 @@ function Lottery($number)
     if($rs === false)
     {
         ReplyMessage("内部错误，Bot Error 21: $c->error");
-        exit();
+        $return = false;
+        goto SaveLog;
     }
 
     while($row = $rs->fetch_assoc())
@@ -664,7 +666,8 @@ function Lottery($number)
     {
         ReplyMessage("开奖失败，已经加入抽奖的 $joined 人小于您设置的 $prize 份奖品！");
         $log .= '开奖失败，人数不足。';
-        exit();
+        $return = null;
+        goto SaveLog;
     }
 
     $sql = "SELECT * FROM `$number` WHERE";  // sql perfix
@@ -700,7 +703,8 @@ function Lottery($number)
         if($rs === false)
         {
             ReplyMessage("内部错误，Bot Error 131: $c->error");
-            exit();
+            $return = false;
+            goto SaveLog;
         }
 
         $users = array();
@@ -737,7 +741,8 @@ function Lottery($number)
     if($rs === false)
     {
         ReplyMessage("内部错误，Bot Error 22: $c->error");
-        exit();
+        $return = false;
+        goto SaveLog;
     }
     $log .= "SQL Queried Successfully.\r\n\r\n";
 
@@ -789,13 +794,17 @@ function Lottery($number)
     if($rs === false)
     {
         ReplyMessage("内部错误，更新投票状态失败，Bot Error 23: $c->error");
-        exit();
+        $return = false;
+        goto SaveLog;
     }
     $log .= "Updated Lottery Status.\r\n\r\n";
     $log .= "Reply Text: \r\n$t\r\n";
     ReplyMessage($t);
+    $return = true;
 
+    SaveLog:
     file_put_contents("./lott-log/$number.log",$log);
+    return $return;
 }
 
 // Call Winner
