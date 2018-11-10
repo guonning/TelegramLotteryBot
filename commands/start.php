@@ -122,7 +122,7 @@ if(isset($cmd[1]))
     $vision = CloudVisionApi($file_id);
     if($vision === false)
     {
-        ReplyMessage("内部错误，Bot Error 121: Vision API Request Failed");
+        ReplyMessage("内部错误，Vision API Request Failed (Bot Error 121)，请尝试重新点击链接加入抽奖。");
         quit();
     }
 
