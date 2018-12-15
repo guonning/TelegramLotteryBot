@@ -247,9 +247,10 @@ function PlainText($from,$text)
             quit();
         }
         $user->amount = (int)$text;
-        $user->step = 4;
+        //$user->step = 4;
+        $user->step = 5;
 
-        $t = "已设置奖品数: $user->amount 份".PHP_EOL .
+        /*$t = "已设置奖品数: $user->amount 份".PHP_EOL.
         "是否启用智能中奖概率控制？(y/n)".PHP_EOL .
         "该功能公测中，诚邀您参与测试。\r\n<a href=\"https://open.azuki.cloud/AzukiLotteryBot/docs/smart-probability-control.html\">了解更多</a>\r\n已知BUG: 多份奖品使用本功能可能会有奇怪的问题（（在修了（咕咕";
 
@@ -292,7 +293,7 @@ function PlainText($from,$text)
         else
         {
             $smart = '关闭';
-        }
+        }*/
 
         $t = '设置完成，详情如下：' . PHP_EOL .
         "抽奖标题: <code>$user->title</code>" . PHP_EOL .
