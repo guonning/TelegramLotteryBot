@@ -299,7 +299,7 @@ function PlainText($from,$text)
         "抽奖标题: <code>$user->title</code>" . PHP_EOL .
         "抽奖详情：\r\n<code>$user->details</code>" . PHP_EOL .
         "奖品份数: <code>$user->amount</code>".PHP_EOL .
-        "智能概率: $smart\r\n\r\n";
+        "\r\n";
 
         if($user->amount > 25) $t .= "注意：您设定的奖品超过 25 个，为了防止文字内容超限，开奖时将不会显示所有用户名，通知照常。\r\n\r\n";
         $t .= "确认以上信息？(y/n)\r\n发送 <code>n</code> 或 /cancel 取消抽奖。";
@@ -828,7 +828,7 @@ function Lottery($number)
     $t .= "\r\n已经PM通知获奖者，请尽快领奖";
 
     // ad
-    $t .= "\r\n\r\n<i>Powered By Azuki Cloud</i>";
+    //$t .= "\r\n\r\n<i>Powered By Azuki Cloud</i>";
 
     // Update Lottery Status
     $rs = $c->query("UPDATE `lottery_list` SET `extracted` = '1' WHERE `number` = $number");
@@ -920,6 +920,6 @@ function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req
     "抽奖详情:\r\n<b>$details</b>\r\n".
     "唯一抽奖ID: <code>$number</code>\r\n".
     "请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。\r\n\r\n".
-    "Powered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
+    //"Powered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
     ReplyMessage($msg,false,false,$uid);
 }
