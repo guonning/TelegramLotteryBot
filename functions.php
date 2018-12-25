@@ -300,10 +300,16 @@ function PlainText($from,$text)
         "抽奖详情：\r\n<code>$user->details</code>" . PHP_EOL .
         "奖品份数: <code>$user->amount</code>".PHP_EOL .
         "\r\n";
-
+	
         if($user->amount > 25) $t .= "注意：您设定的奖品超过 25 个，为了防止文字内容超限，开奖时将不会显示所有用户名，通知照常。\r\n\r\n";
         $t .= "确认以上信息？(y/n)\r\n发送 <code>n</code> 或 /cancel 取消抽奖。";
 
+	if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
+        {
+            ReplyMessage("内部错误 Bot Error 103: 无法写入session");
+            quit();
+        }
+		    
         ReplyMessage($t);
         quit();
         break;
