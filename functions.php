@@ -811,6 +811,10 @@ function Lottery($number)
         {
             $t .= '@'.$row['username']."\r\n";
         }
+        else if($first_name == '')
+        {
+            $t .= "<a href=\"tg://user?id=$uid\">$uid</a>\r\n";
+        }
         else
         {
             $t .= "<a href=\"tg://user?id=$uid\">$first_name</a>\r\n";
@@ -832,9 +836,6 @@ function Lottery($number)
     }
 
     $t .= "\r\n已经PM通知获奖者，请尽快领奖";
-
-    // ad
-    //$t .= "\r\n\r\n<i>Powered By Azuki Cloud</i>";
 
     // Update Lottery Status
     $rs = $c->query("UPDATE `lottery_list` SET `extracted` = '1' WHERE `number` = $number");
@@ -920,8 +921,9 @@ function UniqueRandom($min, $max, $num)
 // Call Winner
 function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req_username,$req_firstname)
 {
-    $msg = "$firstname, 恭喜你中奖！\r\n".
-    "中奖详情如下:\r\n".
+    if($firstname == '') $msg = "恭喜你中奖！\r\n";
+    else $msg = "$firstname, 恭喜你中奖！\r\n";
+    $msg .= "中奖详情如下:\r\n".
     "抽奖标题: <b>$title</b>\r\n".
     "抽奖详情:\r\n<b>$details</b>\r\n".
     "唯一抽奖ID: <code>$number</code>\r\n".
