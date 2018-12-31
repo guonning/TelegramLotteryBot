@@ -132,28 +132,6 @@ function EditMessage($msg,$msgid,$chat_id,$reply_markup = false)
     return false;
 }
 
-
-function CloudVisionApi($tg_file_id)
-{
-    global $config;
-    $token = $config['bot_token'];
-    $api_key = $config['vision_api_key'];
-
-    // get img file path
-    $getfile = file_get_contents("https://api.telegram.org/bot$token/getfile?file_id=$tg_file_id");
-    if($getfile === false || json_decode($getfile)->ok != true) return false;
-    $tg_file_path = json_decode($getfile)->result->file_path;
-
-    $img_url = "https://tgapi.azuki.cloud/file/bot$token/$tg_file_path";
-    //$req = '{"requests":[{"image":{"source":{"imageUri":"'.$img_url.'"}},"features":[{"type":"LABEL_DETECTION"},{"type":"SAFE_SEARCH_DETECTION"}]}]}';
-
-    $base64 = file_get_contents($config['base_url']."/img/ImageToBase64.php?url=$img_url");
-
-    $req = '{"requests":[{"image":{"content": "'.$base64.'"},"features":[{"type":"LABEL_DETECTION"},{"type":"SAFE_SEARCH_DETECTION"}]}]}';
-    $return = PostJson($req,"https://vision.googleapis.com/v1/images:annotate?key=$api_key");
-    return $return;
-}
-
 function PostJson($json,$url)
 {
     global $config;
@@ -210,8 +188,7 @@ function PlainText($from,$text)
     Step 1: give me the title
     Step 2: give me some details
     Step 3: give me amount of winner
-    Step 4: smart probability control
-    Step 5: confirm
+    Step 4: confirm
     */
     $user = json_decode(file_get_contents("./sessions/$from->id.json"));
     switch($user->step)
@@ -247,53 +224,7 @@ function PlainText($from,$text)
             quit();
         }
         $user->amount = (int)$text;
-        //$user->step = 4;
-        $user->step = 5;
-
-        /*$t = "已设置奖品数: $user->amount 份".PHP_EOL.
-        "是否启用智能中奖概率控制？(y/n)".PHP_EOL .
-        "该功能公测中，诚邀您参与测试。\r\n<a href=\"https://open.azuki.cloud/AzukiLotteryBot/docs/smart-probability-control.html\">了解更多</a>\r\n已知BUG: 多份奖品使用本功能可能会有奇怪的问题（（在修了（咕咕";
-
-        if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
-        {
-            ReplyMessage("内部错误 Bot Error 103: 无法写入session");
-            quit();
-        }
-        ReplyMessage($t);
-        quit();
-        break;
-    
-        case 4:  // Step 4: smart probability control
-        switch($text)
-        {
-            case 'y':
-            $user->smart = true;
-            break;
-
-            case 'n':
-            $user->smart = false;
-            break;
-
-            default:
-            ReplyMessage('无法识别您的输入，请回复 y/n 或取消 /cancel');
-            quit();
-            break;
-        }
-        $user->step = 5;
-        if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
-        {
-            ReplyMessage("内部错误 Bot Error 104: 无法写入session");
-            quit();
-        }
-
-        if($user->smart == true)
-        {
-            $smart = '开启';
-        }
-        else
-        {
-            $smart = '关闭';
-        }*/
+        $user->step = 4;
 
         $t = '设置完成，详情如下：' . PHP_EOL .
         "抽奖标题: <code>$user->title</code>" . PHP_EOL .
@@ -304,7 +235,7 @@ function PlainText($from,$text)
         if($user->amount > 25) $t .= "注意：您设定的奖品超过 25 个，为了防止文字内容超限，开奖时将不会显示所有用户名，通知照常。\r\n\r\n";
         $t .= "确认以上信息？(y/n)\r\n发送 <code>n</code> 或 /cancel 取消抽奖。";
 
-	if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
+	    if(!file_put_contents("./sessions/$from->id.json",json_encode($user)))
         {
             ReplyMessage("内部错误 Bot Error 103: 无法写入session");
             quit();
@@ -314,7 +245,7 @@ function PlainText($from,$text)
         quit();
         break;
 
-        case 5:  // Step 5: confirm
+        case 4:  // Step 4: confirm
         $text = strtolower($text);
         switch($text)
         {
@@ -358,7 +289,6 @@ function PlainText($from,$text)
             unlink("./sessions/$from->id.json");
             ReplyMessage('已取消');
             break;
-    
     
     
             default:

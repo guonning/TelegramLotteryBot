@@ -21,10 +21,10 @@ if(file_exists("./sessions/details/$hash.json"))
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Azuki Lottery Bot</title>
+	<title>Lottery Bot</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="icon" type="image/png" href="https://azuki.cloud/favicon.ico"/>
+	<link rel="icon" type="image/png" href="/favicon.ico"/>
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.loli.net/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.loli.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.loli.net/ajax/libs/animate.css/3.5.2/animate.min.css">

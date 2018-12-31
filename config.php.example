@@ -15,6 +15,3 @@ $config['db_char'] = 'utf8';
 $config['base_url'] = 'https://example.com/LotteryBot';
 
 $config['curl_timeout'] = 1;
-
-$config['enable_vision_api'] = true;  // 是否启用 Google Cloud Vision API，https://cloud.google.com/vision/
-$config['vision_api_key'] = 'xxxxxxxx';
