@@ -925,7 +925,6 @@ function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req
     "抽奖标题: <b>$title</b>\r\n".
     "抽奖详情:\r\n<b>$details</b>\r\n".
     "唯一抽奖ID: <code>$number</code>\r\n".
-    "请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。\r\n\r\n".
-    //"Powered By <a href=\"https://azuki.cloud/analytics.php?from=LotteryBot\">Azuki Cloud</a>";
+    "请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。\r\n\r\n";
     ReplyMessage($msg,false,false,$uid);
 }
