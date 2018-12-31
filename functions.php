@@ -742,13 +742,9 @@ function Lottery($number)
         {
             $t .= '@'.$row['username']."\r\n";
         }
-        else if($first_name == '')
-        {
-            $t .= "<a href=\"tg://user?id=$uid\">$uid</a>\r\n";
-        }
         else
         {
-            $t .= "<a href=\"tg://user?id=$uid\">$first_name</a>\r\n";
+            $t .= "$first_name (<a href=\"tg://user?id=$uid\">$uid</a>)\r\n";
         }
 
         //=================== notify ====================
@@ -852,9 +848,8 @@ function UniqueRandom($min, $max, $num)
 // Call Winner
 function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req_username,$req_firstname)
 {
-    if($firstname == '') $msg = "恭喜你中奖！\r\n";
-    else $msg = "$firstname, 恭喜你中奖！\r\n";
-    $msg .= "中奖详情如下:\r\n".
+    $msg = "$firstname, 恭喜你中奖！\r\n".
+    "中奖详情如下:\r\n".
     "抽奖标题: <b>$title</b>\r\n".
     "抽奖详情:\r\n<b>$details</b>\r\n".
     "抽奖ID: <code>$number</code>\r\n".
