@@ -551,12 +551,13 @@ function ButtonCallback($callback_query)
             $t = '该抽奖不存在 / 已开奖 / 已取消！';
         }
         else
-        {   
+        {
+            $count_query = $c->query("SELECT `id` FROM `114514000049`");
             while($row = $rs->fetch_assoc())
             {
                 $t = '开奖确认: '.$row['title'].' (ID <code>'.$row['number']."</code>)\r\n";
             }
-            $t .= "当前有 $rs->num_rows 人参与了抽奖。\r\n\r\n确定开奖吗？(y/n)";
+            $t .= "当前有 $count_query->num_rows 人参与了抽奖。\r\n\r\n确定开奖吗？(y/n)";
             $se = array(
                 'type' => 'lottery',
                 'number' => $number
@@ -797,7 +798,7 @@ function Lottery($number)
     "创建者: <a href=\"tg://user?id=$req_uid\">$req_firstname</a>\r\n" .
     "抽奖详情:\r\n<b>$details</b>\r\n" .
     "奖品份数: <b>$prize 份</b>\r\n" .
-    "唯一抽奖ID: <b>$number</b>\r\n" .
+    "抽奖ID: <b>$number</b>\r\n" .
     "恭喜以下参与者中奖:\r\n";
     
     while($row = $rs->fetch_assoc())
@@ -926,7 +927,7 @@ function CallWinner($number,$title,$details,$prize,$uid,$firstname,$req_uid,$req
     $msg .= "中奖详情如下:\r\n".
     "抽奖标题: <b>$title</b>\r\n".
     "抽奖详情:\r\n<b>$details</b>\r\n".
-    "唯一抽奖ID: <code>$number</code>\r\n".
+    "抽奖ID: <code>$number</code>\r\n".
     "请及时按照约定方式或联系发起者 <a href=\"tg://user?id=$req_uid\">$req_firstname</a> 领奖。\r\n\r\n";
     ReplyMessage($msg,false,false,$uid);
 }

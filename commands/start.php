@@ -57,7 +57,7 @@ if(isset($cmd[1]))
 
 
     //======================== Reply Message ==========================
-    ReplyMessage("成功参加抽奖 $title , 唯一抽奖ID: $number, 请等待开奖。");
+    ReplyMessage("成功参加抽奖 $title , 抽奖ID: $number, 请等待开奖。");
 
 
     //==================== Smart Probability Control =======================
