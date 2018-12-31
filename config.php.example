@@ -12,7 +12,7 @@ $config['db_pass'] = 'password';
 $config['db_name'] = 'LotteryBot';
 $config['db_char'] = 'utf8';
 
-$config['base_url'] = 'https://example.com/AzukiLotteryBot';
+$config['base_url'] = 'https://example.com/LotteryBot';
 
 $config['curl_timeout'] = 1;
 
